@@ -10,7 +10,7 @@ import java.util.ArrayList;
 @Builder
 @Setter
 @Getter
-@ToString(includeFieldNames = true)
+@ToString
 public class Order {
     private String orderId;
     private String clientId;

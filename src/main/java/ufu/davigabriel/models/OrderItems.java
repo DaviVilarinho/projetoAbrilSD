@@ -8,7 +8,7 @@ import lombok.ToString;
 @Setter
 @Getter
 @Builder
-@ToString(includeFieldNames = true)
+@ToString
 public class OrderItems {
     private String productId;
     private int quantity;

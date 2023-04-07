@@ -13,5 +13,5 @@ public enum AdminPortalOption {
     BUSCAR_PRODUTO,
     MUDAR_PRODUTO,
     REMOVER_PRODUTO,
-    SAIR;
+    SAIR
 }

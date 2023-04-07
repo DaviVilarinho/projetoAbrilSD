@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Builder
-@ToString(includeFieldNames = true)
+@ToString
 public class Product {
     private String productId;
     private String name;

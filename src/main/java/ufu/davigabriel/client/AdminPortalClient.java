@@ -1,13 +1,15 @@
 package ufu.davigabriel.client;
 
 import ufu.davigabriel.models.Client;
+import ufu.davigabriel.models.Reply;
 
-import javax.swing.text.html.Option;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Scanner;
 
 public class AdminPortalClient {
+
     public static void main(String[] args) {
         System.out.println("----------------------------------");
         System.out.println("Bem vindo ao Portal Administrativo");
@@ -16,7 +18,7 @@ public class AdminPortalClient {
         AdminPortalOption adminPortalOption = AdminPortalOption.NOOP;
         Scanner scanner = new Scanner(System.in);
         while (!AdminPortalOption.SAIR.equals(adminPortalOption)) {
-            System.out.println("Escolha o que quer fazer:");
+            System.out.println("Opcoes:");
             Arrays.stream(AdminPortalOption.values()).forEach(System.out::println);
 
             System.out.print("Escolha: ");
@@ -28,22 +30,94 @@ public class AdminPortalClient {
             }
 
             switch (adminPortalOption) {
-                case NOOP -> System.out.println("Nada a ser Feito");
+                case NOOP -> System.out.println("Nada a ser feito.");
+                case CRIAR_CLIENTE -> {
+                    System.out.print("Escreva o novo nome do cliente: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Escreva o Novo zipCode do cliente: ");
+                    String zipCode = scanner.nextLine();
+
+                    Reply response = createClient(Client.builder().clientId(Integer.toString(new Random().nextInt(99999999)+1)).name(name).zipCode(zipCode).build());
+                    if(response.getError() != 0)
+                        System.out.println("ERRO: " + response.getDescription());
+                    else
+                        System.out.println("CLIENTE INSERIDO");
+                }
                 case BUSCAR_CLIENTE -> {
                     System.out.print("Escreva o ID do cliente: ");
-                    Optional<Client> foundClient = searchClient(scanner.nextLine());
+                    Optional<Client> foundClient = retrieveClient(scanner.nextLine());
                     foundClient.ifPresentOrElse(client -> {
                         System.out.println("CLIENTE ENCONTRADO");
                         System.out.println(client);
                     }, () -> System.out.println("CLIENTE NAO ENCONTRADO"));
                 }
-            }
+                case MUDAR_CLIENTE -> {
+                    System.out.print("Novo nome do cliente: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Novo zipCode do cliente: ");
+                    String zipCode = scanner.nextLine();
+                    System.out.print("Escreva o ID do cliente: ");
 
+                    Reply response = updateClient(Client.builder().clientId(scanner.nextLine()).name(name).zipCode(zipCode).build());
+                    if(response.getError() != 0)
+                        System.out.println("ERRO: " + response.getDescription());
+                    else
+                        System.out.println("CLIENTE ALTERADO");
+                }
+                case REMOVER_CLIENTE -> {
+                    System.out.print("Escreva o ID do cliente: ");
+                    Reply response = removeClient(scanner.nextLine());
+                    if(response.getError() != 0)
+                        System.out.println("ERRO: " + response.getDescription());
+                    else
+                        System.out.println("CLIENTE REMOVIDO");
+                }
+                default -> {
+                    System.out.println("Encerrando o portal administrativo.");
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException exception) {
+                        exception.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
-    static private Optional<Client> searchClient(String clientId) {
+    static private Reply createClient(Client client) {
+        if (!true) { //substituir true por uma operação que verifica se o cliente existe no banco
+            //incluir operacao que inclui um cliente no banco de dados e na cache
+            System.out.println("Inseriu um ID " + client.getClientId());
+            return Reply.SUCESSO;
+        }
+
+        return Reply.DUPLICATA;
+    }
+
+    static private Optional<Client> retrieveClient(String clientId) {
+        Optional optClient = Optional.empty();
+        //incluir operacao que tenta recuperar o cliente da cache
+        //se nao encontrar, incluir operacao que tenta recuperar o cliente do banco de dados e incluir operacao que atualiza a cache
+
         System.out.println("Buscou um ID " + clientId);
-        return Optional.empty();
+        return optClient;
+    }
+    static private Reply updateClient(Client client) {
+        if (true) { //substituir true por uma operação que verifica se o cliente existe no banco
+            //incluir operacao que atualiza o cliente no banco e na cache
+            System.out.println("Atualizou um ID " + client.getClientId());
+            return Reply.SUCESSO;
+        }
+
+        return Reply.INEXISTENTE;
+    }
+
+    static private Reply removeClient(String clientId) {
+        if (true) { //substituir true por uma operação que verifica se o cliente existe no banco
+            //incluir operação que remove o cliente do banco e da cache (se estiver lá)
+            System.out.println("Removeu um ID " + clientId);
+            return Reply.SUCESSO;
+        }
+        return Reply.INEXISTENTE;
     }
 }

@@ -5,12 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Optional;
-
 @Getter
 @Setter
 @Builder
-@ToString(includeFieldNames = true)
+@ToString
 public class Client {
     private String clientId;
     private String name;
