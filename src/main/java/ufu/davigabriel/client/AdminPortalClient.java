@@ -1,7 +1,6 @@
 package ufu.davigabriel.client;
 
 import ufu.davigabriel.models.Client;
-import ufu.davigabriel.models.Reply;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -37,7 +36,7 @@ public class AdminPortalClient {
                     System.out.print("Escreva o Novo zipCode do cliente: ");
                     String zipCode = scanner.nextLine();
 
-                    Reply response = createClient(Client.builder().clientId(Integer.toString(new Random().nextInt(99999999)+1)).name(name).zipCode(zipCode).build());
+                    AdminPortalReply response = createClient(Client.builder().clientId(Integer.toString(new Random().nextInt(99999999)+1)).name(name).zipCode(zipCode).build());
                     if(response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -58,7 +57,7 @@ public class AdminPortalClient {
                     String zipCode = scanner.nextLine();
                     System.out.print("Escreva o ID do cliente: ");
 
-                    Reply response = updateClient(Client.builder().clientId(scanner.nextLine()).name(name).zipCode(zipCode).build());
+                    AdminPortalReply response = updateClient(Client.builder().clientId(scanner.nextLine()).name(name).zipCode(zipCode).build());
                     if(response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -66,7 +65,7 @@ public class AdminPortalClient {
                 }
                 case REMOVER_CLIENTE -> {
                     System.out.print("Escreva o ID do cliente: ");
-                    Reply response = removeClient(scanner.nextLine());
+                    AdminPortalReply response = removeClient(scanner.nextLine());
                     if(response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -75,7 +74,7 @@ public class AdminPortalClient {
                 default -> {
                     System.out.println("Encerrando o portal administrativo.");
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException exception) {
                         exception.printStackTrace();
                     }
@@ -84,14 +83,14 @@ public class AdminPortalClient {
         }
     }
 
-    static private Reply createClient(Client client) {
+    static private AdminPortalReply createClient(Client client) {
         if (!true) { //substituir true por uma operação que verifica se o cliente existe no banco
             //incluir operacao que inclui um cliente no banco de dados e na cache
             System.out.println("Inseriu um ID " + client.getClientId());
-            return Reply.SUCESSO;
+            return AdminPortalReply.SUCESSO;
         }
 
-        return Reply.DUPLICATA;
+        return AdminPortalReply.DUPLICATA;
     }
 
     static private Optional<Client> retrieveClient(String clientId) {
@@ -102,22 +101,22 @@ public class AdminPortalClient {
         System.out.println("Buscou um ID " + clientId);
         return optClient;
     }
-    static private Reply updateClient(Client client) {
+    static private AdminPortalReply updateClient(Client client) {
         if (true) { //substituir true por uma operação que verifica se o cliente existe no banco
             //incluir operacao que atualiza o cliente no banco e na cache
             System.out.println("Atualizou um ID " + client.getClientId());
-            return Reply.SUCESSO;
+            return AdminPortalReply.SUCESSO;
         }
 
-        return Reply.INEXISTENTE;
+        return AdminPortalReply.INEXISTENTE;
     }
 
-    static private Reply removeClient(String clientId) {
+    static private AdminPortalReply removeClient(String clientId) {
         if (true) { //substituir true por uma operação que verifica se o cliente existe no banco
             //incluir operação que remove o cliente do banco e da cache (se estiver lá)
             System.out.println("Removeu um ID " + clientId);
-            return Reply.SUCESSO;
+            return AdminPortalReply.SUCESSO;
         }
-        return Reply.INEXISTENTE;
+        return AdminPortalReply.INEXISTENTE;
     }
 }

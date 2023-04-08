@@ -1,11 +1,11 @@
-package ufu.davigabriel.models;
+package ufu.davigabriel.client;
 
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-public enum Reply {
+public enum AdminPortalReply {
     SUCESSO(0, ""),
     DUPLICATA(-1, "Usuario ja existe."),
     INEXISTENTE(-2, "Usuario nao existe.");
@@ -13,7 +13,7 @@ public enum Reply {
     private final int error;
     private final String description;
 
-    private Reply(int error, String description){
+    private AdminPortalReply(int error, String description){
         this.error = error;
         this.description = description;
     }
