@@ -55,8 +55,8 @@ gradle.taskGraph.whenReady {
 sourceSets {
     main {
         java {
-            srcDirs("build/generated/source/proto/main/grpc")
-            srcDirs("build/generated/source/proto/main/java")
+            srcDirs("build/generated/sources/proto/main/grpc")
+            srcDirs("build/generated/sources/proto/main/java")
         }
     }
 }
