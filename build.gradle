@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("application")
-    id("com.google.protobuf", ) version "0.9.1"
+    id("com.google.protobuf") version "0.9.2"
     // Generate IntelliJ IDEA's .idea & .iml project files
     id("idea")
 }
@@ -14,8 +14,9 @@ var protobufVersion = "3.21.7"
 var protocVersion = protobufVersion
 
 repositories {
-    mavenCentral()
-    maven(url="https://maven-central.storage-download.googleapis.com/maven2/")
+    maven {
+        url "https://maven-central.storage-download.googleapis.com/maven2/"
+    }
     mavenCentral()
     mavenLocal()
 }
@@ -26,7 +27,6 @@ dependencies {
 
     testCompileOnly("org.projectlombok:lombok:1.18.26")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.26")
-
 
     implementation("io.grpc:grpc-protobuf:${grpcVersion}")
     implementation("io.grpc:grpc-stub:${grpcVersion}")
@@ -45,18 +45,27 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-
-gradle.taskGraph.whenReady {
-    val task = this.allTasks.find { it.name.endsWith(".main()") } as? JavaExec // or whatever other method your Main class runs
-    task?.let {
-        it.setExecutable(it.javaLauncher.get().executablePath.asFile.absolutePath)
-    }
-}
 sourceSets {
     main {
         java {
             srcDirs("build/generated/sources/proto/main/grpc")
             srcDirs("build/generated/sources/proto/main/java")
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protocVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
         }
     }
 }

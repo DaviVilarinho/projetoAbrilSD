@@ -2,61 +2,64 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "ufu.davigabriel.server";
-option java_generic_services = true;
+option java_outer_classname = "ServerProto";
+option objc_class_prefix = "SV";
 
-package projetoSD;
+package server;
 
-message Client {
-  // Client ID
+message ClientGRPC {
+  // ClientGRPC IDGRPC
   string CID = 1;
-  // JSON string representing client data: at least a name
-  string data = 2;
+  // JSON string representing ClientGRPC data: at least a name
+  string name = 2;
+  //
+  string zipCode = 3;
 }
 
-message Product {
-  // Produto ID
+message ProductGRPC {
+  // Produto IDGRPC
   string PID = 1;
-  // JSON string representing produto data: at least product name, price, and
+  // JSON string representing produto data: at least ProductGRPC name, price, and
   // quantity
   string data = 2;
 }
 
-message Order {
-  // Order ID
+message OrderGRPC {
+  // OrderGRPC IDGRPC
   string OID = 1;
-  // CLient ID
+  // ClientGRPC IDGRPC
   string CID = 2;
   // JSON string representing at least array of PIDs, prices, and quantities
   string data = 3;
 }
 
-message Reply {
+message ReplyGRPC {
   // Error code: 0 for success
   int32 error = 1;
   // Error message, if error > 0
   optional string description = 2;
 }
 
-message ID {
-  // generic ID for CID, PID and OID
-  string ID = 1;
+message IDGRPC {
+  // generic IDGRPC for CID, PID and OID
+  string IDGRPC = 1;
 }
 
 service AdminPortal {
-  rpc CreateClient(Client) returns (Reply) {}
-  rpc RetrieveClient(ID) returns (Client) {}
-  rpc UpdateClient(Client) returns (Reply) {}
-  rpc DeleteClient(ID) returns (Reply) {}
-  rpc CreateProduct(Product) returns (Reply) {}
-  rpc RetrieveProduct(ID) returns (Product) {}
-  rpc UpdateProduct(Product) returns (Reply) {}
-  rpc DeleteProduct(ID) returns (Reply) {}
+  rpc CreateClient(ClientGRPC) returns (ReplyGRPC) {}
+  rpc RetrieveClient(IDGRPC) returns (ClientGRPC) {}
+  rpc UpdateClient(ClientGRPC) returns (ReplyGRPC) {}
+  rpc DeleteClient(IDGRPC) returns (ReplyGRPC) {}
+  rpc CreateProduct(ProductGRPC) returns (ReplyGRPC) {}
+  rpc RetrieveProduct(IDGRPC) returns (ProductGRPC) {}
+  rpc UpdateProduct(ProductGRPC) returns (ReplyGRPC) {}
+  rpc DeleteProduct(IDGRPC) returns (ReplyGRPC) {}
 }
 
 service OrderPortal {
-  rpc CreateOrder(Order) returns (Reply) {}
-  rpc RetrieveOrder(ID) returns (Order) {}
-  rpc UpdateOrder(Order) returns (Reply) {}
-  rpc DeleteOrder(ID) returns (Reply) {}
-  rpc RetrieveClientOrders(ID) returns (stream Order) {}
+  rpc CreateOrder(OrderGRPC) returns (ReplyGRPC) {}
+  rpc RetrieveOrder(IDGRPC) returns (OrderGRPC) {}
+  rpc UpdateOrder(OrderGRPC) returns (ReplyGRPC) {}
+  rpc DeleteOrder(IDGRPC) returns (ReplyGRPC) {}
+  rpc RetrieveClientOrders(IDGRPC) returns (stream OrderGRPC) {}
 }

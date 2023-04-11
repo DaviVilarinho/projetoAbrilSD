@@ -1,12 +1,13 @@
 package ufu.davigabriel.server;
 
-import com.google.protobuf.RpcCallback;
-import com.google.protobuf.RpcController;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.stub.StreamObserver;
+import ufu.davigabriel.client.AdminPortalReply;
+import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
+import ufu.davigabriel.services.DatabaseService;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +19,7 @@ public class AdminPortalServer {
         /* The port on which the server should run */
         int port = 50051;
         server = Grpc.newServerBuilderForPort(port, InsecureServerCredentials.create())
-                .addService((BindableService) new AdminPortalImpl())
+                .addService(new AdminPortalImpl())
                 .build()
                 .start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -62,46 +63,65 @@ public class AdminPortalServer {
          */
         System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
     }
+    static class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
+        private DatabaseService databaseService = DatabaseService.getInstance();
 
-    static class AdminPortalImpl extends AdminPortal {
         @Override
-        public void createClient(RpcController controller, Client request, RpcCallback<Reply> done) {
-
+        public void createClient(ClientGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+            try {
+                databaseService.createClient(request);
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(0)
+                        .setDescription(AdminPortalReply.SUCESSO.getDescription())
+                        .build());
+            } catch (DuplicateDatabaseItemException exception) {
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(1)
+                        .setDescription(exception.getMessage())
+                        .build());
+            } finally {
+                responseObserver.onCompleted();
+            }
+            super.createClient(request, responseObserver);
         }
 
         @Override
-        public void retrieveClient(RpcController controller, ID request, RpcCallback<Client> done) {
-
+        public void retrieveClient(IDGRPC request, StreamObserver<ClientGRPC> responseObserver) {
+            super.retrieveClient(request, responseObserver);
         }
 
         @Override
-        public void updateClient(RpcController controller, Client request, RpcCallback<Reply> done) {
-
+        public void updateClient(ClientGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+            super.updateClient(request, responseObserver);
         }
 
         @Override
-        public void deleteClient(RpcController controller, ID request, RpcCallback<Reply> done) {
-
+        public void deleteClient(IDGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+            super.deleteClient(request, responseObserver);
         }
 
         @Override
-        public void createProduct(RpcController controller, Product request, RpcCallback<Reply> done) {
-
+        public void createProduct(ProductGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+            super.createProduct(request, responseObserver);
         }
 
         @Override
-        public void retrieveProduct(RpcController controller, ID request, RpcCallback<Product> done) {
-
+        public void retrieveProduct(IDGRPC request, StreamObserver<ProductGRPC> responseObserver) {
+            super.retrieveProduct(request, responseObserver);
         }
 
         @Override
-        public void updateProduct(RpcController controller, Product request, RpcCallback<Reply> done) {
-
+        public void updateProduct(ProductGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+            super.updateProduct(request, responseObserver);
         }
 
         @Override
-        public void deleteProduct(RpcController controller, ID request, RpcCallback<Reply> done) {
-
+        public void deleteProduct(IDGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+            super.deleteProduct(request, responseObserver);
         }
+    }
+    static class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {
+        private DatabaseService databaseService = DatabaseService.getInstance();
+
     }
 }
