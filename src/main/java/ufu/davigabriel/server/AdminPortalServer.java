@@ -53,16 +53,12 @@ public class AdminPortalServer {
         }
     }
 
-    /**
-     * Main launches the server from the command line.
-     */
     public static void main(String[] args) throws IOException, InterruptedException {
-        /*
+
         final AdminPortalServer server = new AdminPortalServer();
         server.start();
-        server.blockUntilShutdown();
-         */
         System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
+        server.blockUntilShutdown();
     }
     static class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
         private DatabaseService databaseService = DatabaseService.getInstance();
@@ -125,22 +121,58 @@ public class AdminPortalServer {
 
         @Override
         public void createProduct(ProductGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
-            super.createProduct(request, responseObserver);
+            try {
+                databaseService.createProduct(request);
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(0)
+                        .setDescription(AdminPortalReply.SUCESSO.getDescription())
+                        .build());
+            } catch (DuplicateDatabaseItemException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void retrieveProduct(IDGRPC request, StreamObserver<ProductGRPC> responseObserver) {
-            super.retrieveProduct(request, responseObserver);
+            try {
+                responseObserver.onNext(databaseService.retrieveProduct(request).toProductGRPC());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void updateProduct(ProductGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
-            super.updateProduct(request, responseObserver);
+            try {
+                databaseService.updateProduct(request);
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(0)
+                        .setDescription(AdminPortalReply.SUCESSO.getDescription())
+                        .build());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void deleteProduct(IDGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
-            super.deleteProduct(request, responseObserver);
+            try {
+                databaseService.deleteProduct(request);
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(0)
+                        .setDescription(AdminPortalReply.SUCESSO.getDescription())
+                        .build());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
     }
     static class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {

@@ -1,5 +1,6 @@
 package ufu.davigabriel.services;
 //todo database validator
+import org.json.JSONObject;
 import ufu.davigabriel.exceptions.DatabaseException;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
@@ -8,6 +9,7 @@ import ufu.davigabriel.models.Order;
 import ufu.davigabriel.models.Product;
 import ufu.davigabriel.server.ClientGRPC;
 import ufu.davigabriel.server.IDGRPC;
+import ufu.davigabriel.server.ProductGRPC;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -68,5 +70,42 @@ public class DatabaseService {
     public void deleteClient(String id) throws NotFoundItemInDatabaseException {
         if (!clientsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
         clientsMap.remove(id);
+    }
+
+    public void createProduct(ProductGRPC product) throws DuplicateDatabaseItemException{
+        createProduct(Product.fromProductGRPC(product));
+    }
+    public void createProduct(Product product) throws DuplicateDatabaseItemException {
+        if(productsMap.containsKey(product.getProductId()))
+            throw new DuplicateDatabaseItemException();
+
+        productsMap.putIfAbsent(product.getProductId(), product);
+    }
+
+    public Product retrieveProduct(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
+        return retrieveProduct(idgrpc.getIDGRPC());
+    }
+
+    public Product retrieveProduct(String id) throws NotFoundItemInDatabaseException {
+        if (!productsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        return productsMap.get(id);
+    }
+
+    public void updateProduct(ProductGRPC ProductGRPC) throws NotFoundItemInDatabaseException {
+        updateProduct(Product.fromProductGRPC(ProductGRPC));
+    }
+
+    public void updateProduct(Product Product) throws NotFoundItemInDatabaseException {
+        if (!productsMap.containsKey(Product.getProductId())) throw new NotFoundItemInDatabaseException();
+        productsMap.put(Product.getProductId(), Product);
+    }
+
+    public void deleteProduct(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
+        deleteProduct(idgrpc.getIDGRPC());
+    }
+
+    public void deleteProduct(String id) throws NotFoundItemInDatabaseException {
+        if (!productsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        productsMap.remove(id);
     }
 }

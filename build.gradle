@@ -22,6 +22,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.json:json:20230227")
+
     compileOnly("org.projectlombok:lombok:1.18.26")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
 

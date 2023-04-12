@@ -11,9 +11,7 @@ message ClientGRPC {
   // ClientGRPC IDGRPC
   string CID = 1;
   // JSON string representing ClientGRPC data: at least a name
-  string name = 2;
-  //
-  string zipCode = 3;
+  string data = 2;
 }
 
 message ProductGRPC {

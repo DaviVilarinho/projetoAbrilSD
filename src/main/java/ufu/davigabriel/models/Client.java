@@ -1,5 +1,6 @@
 package ufu.davigabriel.models;
 
+import org.json.JSONObject;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,16 +19,20 @@ public class Client {
     public ClientGRPC toClientGRPC() {
         return ClientGRPC.newBuilder()
                 .setCID(getClientId())
-                .setName(name)
-                .setZipCode(zipCode)
+                .setData(new JSONObject()
+                        .put("name", name)
+                        .put("zipCode", zipCode)
+                        .toString()
+                )
                 .build();
     }
 
     public static Client fromClientGRPC(ClientGRPC clientGRPC) {
+        JSONObject data = new JSONObject(clientGRPC.getData());
         return Client.builder()
                 .clientId(clientGRPC.getCID())
-                .name(clientGRPC.getName())
-                .zipCode(clientGRPC.getZipCode())
+                .name(data.getString("name"))
+                .zipCode(data.getString("zipCode"))
                 .build();
     }
 }
