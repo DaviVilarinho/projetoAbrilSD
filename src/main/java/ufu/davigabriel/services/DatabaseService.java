@@ -2,12 +2,15 @@ package ufu.davigabriel.services;
 //todo database validator
 import ufu.davigabriel.exceptions.DatabaseException;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.models.Client;
 import ufu.davigabriel.models.Order;
 import ufu.davigabriel.models.Product;
 import ufu.davigabriel.server.ClientGRPC;
+import ufu.davigabriel.server.IDGRPC;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class DatabaseService {
     private static DatabaseService instance;
@@ -30,15 +33,8 @@ public class DatabaseService {
         return instance;
     }
 
-    //Client operations
-    public Client parseClient(ClientGRPC client){
-        return Client.builder()
-                .clientId(client.getCID())
-                .name(client.getName())
-                .zipCode(client.getZipCode()).build();
-    }
     public void createClient(ClientGRPC client) throws DuplicateDatabaseItemException{
-        createClient(parseClient(client));
+        createClient(Client.fromClientGRPC(client));
     }
     public void createClient(Client client) throws DuplicateDatabaseItemException {
         if(clientsMap.containsKey(client.getClientId()))
@@ -46,5 +42,22 @@ public class DatabaseService {
 
         clientsMap.putIfAbsent(client.getClientId(), client);
     }
-    //
+
+    public Client retrieveClient(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
+        return retrieveClient(idgrpc.getIDGRPC());
+    }
+
+    public Client retrieveClient(String id) throws NotFoundItemInDatabaseException {
+        if (!clientsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        return clientsMap.get(id);
+    }
+
+    public void updateClient(ClientGRPC clientGRPC) throws NotFoundItemInDatabaseException {
+        updateClient(Client.fromClientGRPC(clientGRPC));
+    }
+
+    public void updateClient(Client client) throws NotFoundItemInDatabaseException {
+        if (!clientsMap.containsKey(client.getClientId())) throw new NotFoundItemInDatabaseException();
+        clientsMap.put(client.getClientId(), client);
+    }
 }

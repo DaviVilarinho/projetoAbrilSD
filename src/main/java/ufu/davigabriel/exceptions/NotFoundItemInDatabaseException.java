@@ -2,11 +2,10 @@ package ufu.davigabriel.exceptions;
 
 import io.grpc.stub.StreamObserver;
 import ufu.davigabriel.client.AdminPortalReply;
-import ufu.davigabriel.server.ReplyGRPC;
 
-public class DuplicateDatabaseItemException extends DatabaseException{
+public class NotFoundItemInDatabaseException extends DatabaseException{
     @Override
     public void replyError(StreamObserver responseObserver) {
-        replyError(responseObserver, AdminPortalReply.DUPLICATA);
+        replyError(responseObserver, AdminPortalReply.INEXISTENTE);
     }
 }

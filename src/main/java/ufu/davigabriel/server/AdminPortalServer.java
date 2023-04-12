@@ -7,6 +7,7 @@ import io.grpc.InsecureServerCredentials;
 import io.grpc.stub.StreamObserver;
 import ufu.davigabriel.client.AdminPortalReply;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.services.DatabaseService;
 
 import java.io.IOException;
@@ -75,24 +76,36 @@ public class AdminPortalServer {
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
-                responseObserver.onNext(ReplyGRPC.newBuilder()
-                        .setError(1)
-                        .setDescription(exception.getMessage())
-                        .build());
+                exception.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
-            super.createClient(request, responseObserver);
         }
 
         @Override
         public void retrieveClient(IDGRPC request, StreamObserver<ClientGRPC> responseObserver) {
-            super.retrieveClient(request, responseObserver);
+            try {
+                responseObserver.onNext(databaseService.retrieveClient(request).toClientGRPC());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void updateClient(ClientGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
-            super.updateClient(request, responseObserver);
+            try {
+                databaseService.updateClient(request);
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(0)
+                        .setDescription(AdminPortalReply.SUCESSO.getDescription())
+                        .build());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override

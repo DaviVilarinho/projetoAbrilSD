@@ -7,8 +7,9 @@ import lombok.ToString;
 @ToString
 public enum AdminPortalReply {
     SUCESSO(0, ""),
-    DUPLICATA(-1, "Item ja existe."),
-    INEXISTENTE(-2, "Item nao existe.");
+    DUPLICATA(400, "Item ja existe."),
+    INEXISTENTE(404, "Item nao existe."),
+    ERRO_DESCONHECIDO(502, "Falha Interna");
 
     private final int error;
     private final String description;
