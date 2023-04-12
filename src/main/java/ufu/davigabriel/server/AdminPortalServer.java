@@ -110,7 +110,17 @@ public class AdminPortalServer {
 
         @Override
         public void deleteClient(IDGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
-            super.deleteClient(request, responseObserver);
+            try {
+                databaseService.deleteClient(request);
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(0)
+                        .setDescription(AdminPortalReply.SUCESSO.getDescription())
+                        .build());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override

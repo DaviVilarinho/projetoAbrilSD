@@ -60,4 +60,13 @@ public class DatabaseService {
         if (!clientsMap.containsKey(client.getClientId())) throw new NotFoundItemInDatabaseException();
         clientsMap.put(client.getClientId(), client);
     }
+
+    public void deleteClient(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
+        deleteClient(idgrpc.getIDGRPC());
+    }
+
+    public void deleteClient(String id) throws NotFoundItemInDatabaseException {
+        if (!clientsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        clientsMap.remove(id);
+    }
 }
