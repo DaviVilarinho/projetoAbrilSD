@@ -68,7 +68,7 @@ public class AdminPortalServer {
             try {
                 databaseService.createClient(request);
                 responseObserver.onNext(ReplyGRPC.newBuilder()
-                        .setError(0)
+                        .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
@@ -94,7 +94,7 @@ public class AdminPortalServer {
             try {
                 databaseService.updateClient(request);
                 responseObserver.onNext(ReplyGRPC.newBuilder()
-                        .setError(0)
+                        .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
@@ -109,7 +109,7 @@ public class AdminPortalServer {
             try {
                 databaseService.deleteClient(request);
                 responseObserver.onNext(ReplyGRPC.newBuilder()
-                        .setError(0)
+                        .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
@@ -124,7 +124,7 @@ public class AdminPortalServer {
             try {
                 databaseService.createProduct(request);
                 responseObserver.onNext(ReplyGRPC.newBuilder()
-                        .setError(0)
+                        .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
@@ -150,7 +150,7 @@ public class AdminPortalServer {
             try {
                 databaseService.updateProduct(request);
                 responseObserver.onNext(ReplyGRPC.newBuilder()
-                        .setError(0)
+                        .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
@@ -165,7 +165,7 @@ public class AdminPortalServer {
             try {
                 databaseService.deleteProduct(request);
                 responseObserver.onNext(ReplyGRPC.newBuilder()
-                        .setError(0)
+                        .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
@@ -177,6 +177,5 @@ public class AdminPortalServer {
     }
     static class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {
         private DatabaseService databaseService = DatabaseService.getInstance();
-
     }
 }
