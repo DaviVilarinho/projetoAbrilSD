@@ -1,6 +1,5 @@
 package ufu.davigabriel.server;
 
-import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
@@ -60,7 +59,7 @@ public class AdminPortalServer {
         System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
         server.blockUntilShutdown();
     }
-    static class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
+    static public class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
         private DatabaseService databaseService = DatabaseService.getInstance();
 
         @Override

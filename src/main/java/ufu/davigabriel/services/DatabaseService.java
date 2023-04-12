@@ -20,8 +20,8 @@ public class DatabaseService {
     private HashMap<String, Client> clientsMap;
     private HashMap<String, Order> ordersMap;
 
-    public DatabaseService() {
-        if (instance != null){
+    private DatabaseService() {
+        if (instance == null){
             productsMap = new HashMap<>();
             clientsMap = new HashMap<>();
             ordersMap = new HashMap<>();
