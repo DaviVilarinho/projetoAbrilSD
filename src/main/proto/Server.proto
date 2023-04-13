@@ -43,9 +43,16 @@ message IDGRPC {
   string IDGRPC = 1;
 }
 
+message ClientOrErrorGRPC {
+  oneof message {
+    ClientGRPC clientGRPC = 1;
+    ReplyGRPC replyGRPC = 2;
+  }
+}
+
 service AdminPortal {
   rpc CreateClient(ClientGRPC) returns (ReplyGRPC) {}
-  rpc RetrieveClient(IDGRPC) returns (ClientGRPC) {}
+  rpc RetrieveClient(IDGRPC) returns (ClientOrErrorGRPC) {}
   rpc UpdateClient(ClientGRPC) returns (ReplyGRPC) {}
   rpc DeleteClient(IDGRPC) returns (ReplyGRPC) {}
   rpc CreateProduct(ProductGRPC) returns (ReplyGRPC) {}

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import ufu.davigabriel.server.ClientGRPC;
+import ufu.davigabriel.server.ClientOrErrorGRPC;
 
 @Getter
 @Setter
@@ -24,6 +25,12 @@ public class Client {
                         .put("zipCode", zipCode)
                         .toString()
                 )
+                .build();
+    }
+
+    public ClientOrErrorGRPC toClientOrErrorGRPC() {
+        return ClientOrErrorGRPC.newBuilder()
+                .setClientGRPC(toClientGRPC())
                 .build();
     }
 

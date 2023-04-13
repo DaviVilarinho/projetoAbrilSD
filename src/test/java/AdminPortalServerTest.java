@@ -1,4 +1,5 @@
 import io.grpc.Server;
+import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.ClientResponseObserver;
@@ -10,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 import ufu.davigabriel.exceptions.DatabaseException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.models.Client;
@@ -37,9 +39,10 @@ public class AdminPortalServerTest {
                 grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()));
 
         ReplyGRPC replyGrpc = blockingStub.createClient(clientThatShouldBeCreated);
-        ClientGRPC clientGrpc = blockingStub.retrieveClient(IDGRPC.newBuilder().setIDGRPC(clientThatShouldBeCreated.getCID()).build());
-        Assert.assertEquals(clientGrpc, clientThatShouldBeCreated);
-        Assert.assertNotEquals(clientGrpc, clientThatShouldNotBeCreated);
-        blockingStub.retrieveClient(IDGRPC.newBuilder().setIDGRPC(clientThatShouldNotBeCreated.getCID()).build());
+        ClientOrErrorGRPC clientGrpc = blockingStub.retrieveClient(IDGRPC.newBuilder().setIDGRPC(clientThatShouldBeCreated.getCID()).build());
+        Assert.assertEquals(clientThatShouldBeCreated, clientGrpc.getClientGRPC());
+        Assert.assertNotEquals(clientThatShouldNotBeCreated, clientGrpc.getClientGRPC());
+        clientGrpc = blockingStub.retrieveClient(IDGRPC.newBuilder().setIDGRPC(clientThatShouldNotBeCreated.getCID()).build());
+        Assert.assertEquals(404, clientGrpc.getReplyGRPC().getError());
     }
 }

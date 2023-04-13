@@ -3,6 +3,7 @@ package ufu.davigabriel.server;
 import io.grpc.Server;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import ufu.davigabriel.client.AdminPortalReply;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
@@ -78,11 +79,11 @@ public class AdminPortalServer {
         }
 
         @Override
-        public void retrieveClient(IDGRPC request, StreamObserver<ClientGRPC> responseObserver) {
+        public void retrieveClient(IDGRPC request, StreamObserver<ClientOrErrorGRPC> responseObserver) {
             try {
-                responseObserver.onNext(databaseService.retrieveClient(request).toClientGRPC());
+                responseObserver.onNext(databaseService.retrieveClient(request).toClientOrErrorGRPC());
             } catch (NotFoundItemInDatabaseException exception) {
-                exception.replyError(responseObserver);
+                responseObserver.onNext(ClientOrErrorGRPC.newBuilder().setReplyGRPC(exception.getErrorReply(AdminPortalReply.INEXISTENTE)).build());
             } finally {
                 responseObserver.onCompleted();
             }
@@ -98,6 +99,7 @@ public class AdminPortalServer {
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
+                responseObserver.onError(exception);
             } finally {
                 responseObserver.onCompleted();
             }

@@ -9,10 +9,14 @@ public abstract class DatabaseException extends Exception{
         this.replyError(responseObserver, AdminPortalReply.ERRO_DESCONHECIDO);
     }
 
-    public void replyError(StreamObserver responseObserver, AdminPortalReply adminPortalReply) {
-        responseObserver.onNext(ReplyGRPC.newBuilder()
+    public ReplyGRPC getErrorReply(AdminPortalReply adminPortalReply) {
+        return ReplyGRPC.newBuilder()
                 .setError(adminPortalReply.getError())
                 .setDescription(adminPortalReply.getDescription())
-                .build());
+                .build();
+    }
+
+    public void replyError(StreamObserver responseObserver, AdminPortalReply adminPortalReply) {
+        responseObserver.onNext(getErrorReply(adminPortalReply));
     }
 }
