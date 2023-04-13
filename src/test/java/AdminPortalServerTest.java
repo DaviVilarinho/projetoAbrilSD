@@ -25,7 +25,7 @@ public class AdminPortalServerTest {
     @Rule
     public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
     @Test
-    public void shouldCrudClient() throws IOException, NotFoundItemInDatabaseException {
+    public void shouldCrudClient() throws IOException, NotFoundItemInDatabaseException, InterruptedException {
         ClientGRPC clientThatShouldBeCreated = RandomUtils.generateRandomClient().toClientGRPC();
         ClientGRPC clientThatShouldNotBeCreated = RandomUtils.generateRandomClient().toClientGRPC();
 

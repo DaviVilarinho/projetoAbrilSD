@@ -5,10 +5,12 @@ import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import ufu.davigabriel.client.AdminPortalReply;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.services.DatabaseService;
+import ufu.davigabriel.services.MosquittoUpdaterMiddleware;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -54,18 +56,20 @@ public class AdminPortalServer {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-
         final AdminPortalServer server = new AdminPortalServer();
+        MosquittoUpdaterMiddleware.getInstance();
         server.start();
         System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
         server.blockUntilShutdown();
     }
     static public class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
         private DatabaseService databaseService = DatabaseService.getInstance();
+        private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.getInstance();
 
         @Override
         public void createClient(ClientGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
             try {
+                mosquittoUpdaterMiddleware.publishClientChange(request);
                 databaseService.createClient(request);
                 responseObserver.onNext(ReplyGRPC.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
@@ -73,6 +77,10 @@ public class AdminPortalServer {
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
                 exception.replyError(responseObserver);
+            } catch (MqttException mqttException) {
+                responseObserver.onNext(ReplyGRPC.newBuilder()
+                        .setError(-10)
+                        .setDescription("Erro MQTT").build());
             } finally {
                 responseObserver.onCompleted();
             }
