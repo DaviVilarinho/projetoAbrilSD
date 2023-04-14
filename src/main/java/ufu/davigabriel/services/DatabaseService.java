@@ -12,7 +12,7 @@ import ufu.davigabriel.server.ProductGRPC;
 
 import java.util.HashMap;
 
-public class DatabaseService {
+public class DatabaseService implements IProxyDatabase {
     private static DatabaseService instance;
     private HashMap<String, Product> productsMap;
     private HashMap<String, Client> clientsMap;
@@ -59,6 +59,10 @@ public class DatabaseService {
         return clientsMap.get(id);
     }
 
+    public boolean hasClient(String id) {
+        return clientsMap.containsKey(id);
+    }
+
     public void updateClient(ClientGRPC clientGRPC) throws NotFoundItemInDatabaseException {
         updateClient(Client.fromClientGRPC(clientGRPC));
     }
@@ -82,18 +86,21 @@ public class DatabaseService {
     }
 
     public void createProduct(Product product) throws DuplicateDatabaseItemException {
-        if (productsMap.containsKey(product.getProductId()))
+        if (hasProduct(product.getProductId()))
             throw new DuplicateDatabaseItemException();
 
         productsMap.putIfAbsent(product.getProductId(), product);
     }
 
+    public boolean hasProduct(String id) {
+        return productsMap.containsKey(id);
+    }
     public Product retrieveProduct(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
         return retrieveProduct(idgrpc.getIDGRPC());
     }
 
     public Product retrieveProduct(String id) throws NotFoundItemInDatabaseException {
-        if (!productsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        if (!hasProduct(id)) throw new NotFoundItemInDatabaseException();
         return productsMap.get(id);
     }
 
@@ -102,7 +109,7 @@ public class DatabaseService {
     }
 
     public void updateProduct(Product Product) throws NotFoundItemInDatabaseException {
-        if (!productsMap.containsKey(Product.getProductId())) throw new NotFoundItemInDatabaseException();
+        if (!hasProduct(Product.getProductId())) throw new NotFoundItemInDatabaseException();
         productsMap.put(Product.getProductId(), Product);
     }
 
@@ -111,7 +118,7 @@ public class DatabaseService {
     }
 
     public void deleteProduct(String id) throws NotFoundItemInDatabaseException {
-        if (!productsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        if (!hasProduct(id)) throw new NotFoundItemInDatabaseException();
         productsMap.remove(id);
     }
 }
