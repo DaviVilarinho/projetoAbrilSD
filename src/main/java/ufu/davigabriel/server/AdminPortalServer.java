@@ -68,18 +68,18 @@ public class AdminPortalServer {
         private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.getInstance();
 
         @Override
-        public void createClient(ClientGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void createClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
                 mosquittoUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_CREATION_TOPIC);
                 databaseService.createClient(request);
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(-10)
                         .setDescription("Erro MQTT").build());
             } finally {
@@ -88,22 +88,22 @@ public class AdminPortalServer {
         }
 
         @Override
-        public void retrieveClient(IDGRPC request, StreamObserver<ClientOrErrorGRPC> responseObserver) {
+        public void retrieveClient(ID request, StreamObserver<Client> responseObserver) {
             try {
-                responseObserver.onNext(databaseService.retrieveClient(request).toClientOrErrorGRPC());
+                responseObserver.onNext(databaseService.retrieveClient(request).toClient());
             } catch (NotFoundItemInDatabaseException exception) {
-                responseObserver.onNext(ClientOrErrorGRPC.newBuilder().setReplyGRPC(exception.getErrorReply(AdminPortalReply.INEXISTENTE)).build());
+                System.out.println("Ignorado?");
             } finally {
                 responseObserver.onCompleted();
             }
         }
 
         @Override
-        public void updateClient(ClientGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void updateClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
                 mosquittoUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
                 databaseService.updateClient(request);
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
@@ -111,7 +111,7 @@ public class AdminPortalServer {
                 exception.replyError(responseObserver);
                 responseObserver.onError(exception);
             } catch (MqttException mqttException) {
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(-10)
                         .setDescription("Erro MQTT").build());
             } finally {
@@ -120,18 +120,18 @@ public class AdminPortalServer {
         }
 
         @Override
-        public void deleteClient(IDGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void deleteClient(ID request, StreamObserver<Reply> responseObserver) {
             try {
                 mosquittoUpdaterMiddleware.publishClientDeletion(request);
                 databaseService.deleteClient(request);
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(-10)
                         .setDescription("Erro MQTT").build());
             } finally {
@@ -140,18 +140,18 @@ public class AdminPortalServer {
         }
 
         @Override
-        public void createProduct(ProductGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void createProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
                 mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_CREATION_TOPIC);
                 databaseService.createProduct(request);
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(-10)
                         .setDescription("Erro MQTT").build());
             } finally {
@@ -160,7 +160,7 @@ public class AdminPortalServer {
         }
 
         @Override
-        public void retrieveProduct(IDGRPC request, StreamObserver<ProductGRPC> responseObserver) {
+        public void retrieveProduct(ID request, StreamObserver<Product> responseObserver) {
             try {
                 responseObserver.onNext(databaseService.retrieveProduct(request).toProductGRPC());
             } catch (NotFoundItemInDatabaseException exception) {
@@ -171,18 +171,18 @@ public class AdminPortalServer {
         }
 
         @Override
-        public void updateProduct(ProductGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void updateProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
                 mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
                 databaseService.updateProduct(request);
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(-10)
                         .setDescription("Erro MQTT").build());
             } finally {
@@ -191,18 +191,18 @@ public class AdminPortalServer {
         }
 
         @Override
-        public void deleteProduct(IDGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void deleteProduct(ID request, StreamObserver<Reply> responseObserver) {
             try {
                 mosquittoUpdaterMiddleware.publishProductDeletion(request);
                 databaseService.deleteProduct(request);
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
-                responseObserver.onNext(ReplyGRPC.newBuilder()
+                responseObserver.onNext(Reply.newBuilder()
                         .setError(-10)
                         .setDescription("Erro MQTT").build());
             } finally {

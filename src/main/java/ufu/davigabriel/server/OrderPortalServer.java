@@ -62,23 +62,23 @@ public class OrderPortalServer {
         private DatabaseService databaseService = DatabaseService.getInstance();
 
         @Override
-        public void createOrder(OrderGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void createOrder(Order request, StreamObserver<Reply> responseObserver) {
         }
 
         @Override
-        public void retrieveOrder(IDGRPC request, StreamObserver<OrderGRPC> responseObserver) {
+        public void retrieveOrder(ID request, StreamObserver<Order> responseObserver) {
         }
 
         @Override
-        public void updateOrder(OrderGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void updateOrder(Order request, StreamObserver<Reply> responseObserver) {
         }
 
         @Override
-        public void deleteOrder(IDGRPC request, StreamObserver<ReplyGRPC> responseObserver) {
+        public void deleteOrder(ID request, StreamObserver<Reply> responseObserver) {
         }
 
         @Override
-        public void retrieveClientOrders(IDGRPC request, StreamObserver<OrderGRPC> responseObserver) {
+        public void retrieveClientOrders(ID request, StreamObserver<Order> responseObserver) {
         }
     }
 

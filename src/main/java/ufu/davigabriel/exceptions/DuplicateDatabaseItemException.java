@@ -2,7 +2,7 @@ package ufu.davigabriel.exceptions;
 
 import io.grpc.stub.StreamObserver;
 import ufu.davigabriel.client.AdminPortalReply;
-import ufu.davigabriel.server.ReplyGRPC;
+import ufu.davigabriel.server.Reply;
 
 public class DuplicateDatabaseItemException extends DatabaseException{
     @Override

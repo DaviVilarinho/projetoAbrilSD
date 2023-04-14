@@ -1,7 +1,7 @@
 package ufu.davigabriel.client;
 
-import ufu.davigabriel.models.Client;
-import ufu.davigabriel.models.Product;
+import ufu.davigabriel.models.ClientNative;
+import ufu.davigabriel.models.ProductNative;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class AdminPortalClient {
                     System.out.print("Escreva o Novo zipCode do cliente: ");
                     String zipCode = scanner.nextLine();
 
-                    AdminPortalReply response = createClient(Client.builder().clientId(userId).name(name).zipCode(zipCode).build());
+                    AdminPortalReply response = createClient(ClientNative.builder().clientId(userId).name(name).zipCode(zipCode).build());
                     if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -46,7 +46,7 @@ public class AdminPortalClient {
                 }
                 case BUSCAR_CLIENTE -> {
                     System.out.print("Escreva o ID do cliente: ");
-                    Optional<Client> foundClient = retrieveClient(scanner.nextLine());
+                    Optional<ClientNative> foundClient = retrieveClient(scanner.nextLine());
                     foundClient.ifPresentOrElse(client -> {
                         System.out.println("CLIENTE ENCONTRADO");
                         System.out.println(client);
@@ -59,7 +59,7 @@ public class AdminPortalClient {
                     String zipCode = scanner.nextLine();
                     System.out.print("Escreva o ID do cliente: ");
 
-                    AdminPortalReply response = updateClient(Client.builder().clientId(scanner.nextLine()).name(name).zipCode(zipCode).build());
+                    AdminPortalReply response = updateClient(ClientNative.builder().clientId(scanner.nextLine()).name(name).zipCode(zipCode).build());
                     if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -85,7 +85,7 @@ public class AdminPortalClient {
                         double price = Double.parseDouble(scanner.nextLine());
                         System.out.print("Escreva a quantidade do produto");
                         int quantity = Integer.parseInt(scanner.nextLine());
-                        AdminPortalReply response = createProduct(Product.builder()
+                        AdminPortalReply response = createProduct(ProductNative.builder()
                                 .productId(productId)
                                 .name(name)
                                 .description(description)
@@ -102,10 +102,10 @@ public class AdminPortalClient {
                 }
                 case BUSCAR_PRODUTO -> {
                     System.out.print("Escreva o ID do produto: ");
-                    Optional<Product> foundProduct = retrieveProduct(scanner.nextLine());
-                    foundProduct.ifPresentOrElse(product -> {
+                    Optional<ProductNative> foundProduct = retrieveProduct(scanner.nextLine());
+                    foundProduct.ifPresentOrElse(productNative -> {
                         System.out.println("PRODUTO ENCONTRADO");
-                        System.out.println(product);
+                        System.out.println(productNative);
                     }, () -> System.out.println("PRODUTO NAO ENCONTRADO"));
                 }
                 case MUDAR_PRODUTO -> {
@@ -120,7 +120,7 @@ public class AdminPortalClient {
                         double price = Double.parseDouble(scanner.nextLine());
                         System.out.print("Escreva a quantidade do produto");
                         int quantity = Integer.parseInt(scanner.nextLine());
-                        AdminPortalReply response = updateProduct(Product.builder()
+                        AdminPortalReply response = updateProduct(ProductNative.builder()
                                 .productId(targetProductId)
                                 .name(name)
                                 .description(description)
@@ -156,17 +156,17 @@ public class AdminPortalClient {
         }
     }
 
-    static private AdminPortalReply createClient(Client client) {
+    static private AdminPortalReply createClient(ClientNative clientNative) {
         if (!true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que inclui um cliente no banco de dados e na cache
-            System.out.println("Inseriu um ID " + client.getClientId());
+            System.out.println("Inseriu um ID " + clientNative.getClientId());
             return AdminPortalReply.SUCESSO;
         }
 
         return AdminPortalReply.DUPLICATA;
     }
 
-    static private Optional<Client> retrieveClient(String clientId) {
+    static private Optional<ClientNative> retrieveClient(String clientId) {
         Optional optClient = Optional.empty();
         //incluir operacao que tenta recuperar o cliente da cache
         //se nao encontrar, incluir operacao que tenta recuperar o cliente do banco de dados e incluir operacao que atualiza a cache
@@ -175,10 +175,10 @@ public class AdminPortalClient {
         return optClient;
     }
 
-    static private AdminPortalReply updateClient(Client client) {
+    static private AdminPortalReply updateClient(ClientNative clientNative) {
         if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que atualiza o cliente no banco e na cache
-            System.out.println("Atualizou um ID " + client.getClientId());
+            System.out.println("Atualizou um ID " + clientNative.getClientId());
             return AdminPortalReply.SUCESSO;
         }
 
@@ -194,25 +194,25 @@ public class AdminPortalClient {
         return AdminPortalReply.INEXISTENTE;
     }
 
-    static private AdminPortalReply createProduct(Product product) {
+    static private AdminPortalReply createProduct(ProductNative productNative) {
         if (!true) {
-            System.out.println("Criou produto " + product.getProductId());
+            System.out.println("Criou produto " + productNative.getProductId());
             return AdminPortalReply.SUCESSO;
         }
 
         return AdminPortalReply.DUPLICATA;
     }
 
-    static private Optional<Product> retrieveProduct(String productId) {
-        Optional<Product> optionalProduct = Optional.empty();
+    static private Optional<ProductNative> retrieveProduct(String productId) {
+        Optional<ProductNative> optionalProduct = Optional.empty();
 
         System.out.println("Buscou um ID " + productId);
         return optionalProduct;
     }
 
-    static private AdminPortalReply updateProduct(Product product) {
+    static private AdminPortalReply updateProduct(ProductNative productNative) {
         if (!true) {
-            System.out.println("Atualizou produto " + product.getProductId());
+            System.out.println("Atualizou produto " + productNative.getProductId());
             return AdminPortalReply.SUCESSO;
         }
 

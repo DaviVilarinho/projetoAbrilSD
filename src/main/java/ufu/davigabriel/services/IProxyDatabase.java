@@ -3,19 +3,17 @@ package ufu.davigabriel.services;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.models.Client;
-import ufu.davigabriel.models.Product;
-import ufu.davigabriel.server.ClientGRPC;
-import ufu.davigabriel.server.IDGRPC;
-import ufu.davigabriel.server.ProductGRPC;
+import ufu.davigabriel.server.Client;
+import ufu.davigabriel.server.ID;
+import ufu.davigabriel.server.Product;
 
 public interface IProxyDatabase {
-    void createClient(ClientGRPC client) throws DuplicateDatabaseItemException, MqttException;
+    void createClient(Client client) throws DuplicateDatabaseItemException, MqttException;
 
-    void updateClient(ClientGRPC clientGRPC) throws NotFoundItemInDatabaseException;
-    void deleteClient(IDGRPC idgrpc) throws NotFoundItemInDatabaseException;
-    void createProduct(ProductGRPC product) throws DuplicateDatabaseItemException;
+    void updateClient(Client client) throws NotFoundItemInDatabaseException;
+    void deleteClient(ID id) throws NotFoundItemInDatabaseException;
+    void createProduct(Product product) throws DuplicateDatabaseItemException;
 
-    void updateProduct(ProductGRPC ProductGRPC) throws NotFoundItemInDatabaseException;
-    void deleteProduct(IDGRPC idgrpc) throws NotFoundItemInDatabaseException;
+    void updateProduct(Product Product) throws NotFoundItemInDatabaseException;
+    void deleteProduct(ID id) throws NotFoundItemInDatabaseException;
 }

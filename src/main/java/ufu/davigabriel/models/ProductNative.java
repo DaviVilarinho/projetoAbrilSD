@@ -5,21 +5,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.json.JSONObject;
-import ufu.davigabriel.server.ProductGRPC;
+import ufu.davigabriel.server.Product;
 
 @Getter
 @Setter
 @Builder
 @ToString
-public class Product {
+public class ProductNative {
     private String productId;
     private String name;
     private int quantity;
     private double price;
     private String description;
 
-    public ProductGRPC toProductGRPC() {
-        return ProductGRPC.newBuilder()
+    public Product toProductGRPC() {
+        return Product.newBuilder()
                 .setPID(getProductId())
                 .setData(new JSONObject()
                         .put("PID", productId)
@@ -32,9 +32,9 @@ public class Product {
                 .build();
     }
 
-    public static Product fromProductGRPC(ProductGRPC ProductGRPC) {
-        JSONObject data = new JSONObject(ProductGRPC.getData());
-        return Product.builder()
+    public static ProductNative fromProductGRPC(Product Product) {
+        JSONObject data = new JSONObject(Product.getData());
+        return ProductNative.builder()
                 .productId(data.getString("PID"))
                 .name(data.getString("name"))
                 .quantity(data.getInt("quantity"))

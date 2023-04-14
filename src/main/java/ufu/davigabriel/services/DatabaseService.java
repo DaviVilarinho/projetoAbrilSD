@@ -3,21 +3,21 @@ package ufu.davigabriel.services;
 
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.models.Client;
-import ufu.davigabriel.models.Order;
-import ufu.davigabriel.models.Product;
-import ufu.davigabriel.server.ClientGRPC;
-import ufu.davigabriel.server.IDGRPC;
-import ufu.davigabriel.server.OrderGRPC;
-import ufu.davigabriel.server.ProductGRPC;
+import ufu.davigabriel.models.ClientNative;
+import ufu.davigabriel.models.OrderNative;
+import ufu.davigabriel.models.ProductNative;
+import ufu.davigabriel.server.Client;
+import ufu.davigabriel.server.ID;
+import ufu.davigabriel.server.Order;
+import ufu.davigabriel.server.Product;
 
 import java.util.HashMap;
 
 public class DatabaseService implements IProxyDatabase {
     private static DatabaseService instance;
-    private HashMap<String, Product> productsMap;
-    private HashMap<String, Client> clientsMap;
-    private HashMap<String, Order> ordersMap;
+    private HashMap<String, ProductNative> productsMap;
+    private HashMap<String, ClientNative> clientsMap;
+    private HashMap<String, OrderNative> ordersMap;
 
     private DatabaseService() {
         if (instance == null) {
@@ -35,27 +35,27 @@ public class DatabaseService implements IProxyDatabase {
     }
 
     public void listAll() {
-        productsMap.forEach((s, product) -> System.out.println(product));
+        productsMap.forEach((s, productNative) -> System.out.println(productNative));
         clientsMap.forEach((s, client) -> System.out.println(client));
-        ordersMap.forEach((s, order) -> System.out.println(order));
-    }
-
-    public void createClient(ClientGRPC client) throws DuplicateDatabaseItemException {
-        createClient(Client.fromClientGRPC(client));
+        ordersMap.forEach((s, orderNative) -> System.out.println(orderNative));
     }
 
     public void createClient(Client client) throws DuplicateDatabaseItemException {
-        if (clientsMap.containsKey(client.getClientId()))
+        createClient(ClientNative.fromClient(client));
+    }
+
+    public void createClient(ClientNative clientNative) throws DuplicateDatabaseItemException {
+        if (clientsMap.containsKey(clientNative.getClientId()))
             throw new DuplicateDatabaseItemException();
 
-        clientsMap.putIfAbsent(client.getClientId(), client);
+        clientsMap.putIfAbsent(clientNative.getClientId(), clientNative);
     }
 
-    public Client retrieveClient(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
-        return retrieveClient(idGRPC.getIDGRPC());
+    public ClientNative retrieveClient(ID id) throws NotFoundItemInDatabaseException {
+        return retrieveClient(id.getID());
     }
 
-    public Client retrieveClient(String id) throws NotFoundItemInDatabaseException {
+    public ClientNative retrieveClient(String id) throws NotFoundItemInDatabaseException {
         if (!clientsMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
         return clientsMap.get(id);
     }
@@ -64,17 +64,17 @@ public class DatabaseService implements IProxyDatabase {
         return clientsMap.containsKey(id);
     }
 
-    public void updateClient(ClientGRPC clientGRPC) throws NotFoundItemInDatabaseException {
-        updateClient(Client.fromClientGRPC(clientGRPC));
-    }
-
     public void updateClient(Client client) throws NotFoundItemInDatabaseException {
-        if (!clientsMap.containsKey(client.getClientId())) throw new NotFoundItemInDatabaseException();
-        clientsMap.put(client.getClientId(), client);
+        updateClient(ClientNative.fromClient(client));
     }
 
-    public void deleteClient(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
-        deleteClient(idGRPC.getIDGRPC());
+    public void updateClient(ClientNative clientNative) throws NotFoundItemInDatabaseException {
+        if (!clientsMap.containsKey(clientNative.getClientId())) throw new NotFoundItemInDatabaseException();
+        clientsMap.put(clientNative.getClientId(), clientNative);
+    }
+
+    public void deleteClient(ID id) throws NotFoundItemInDatabaseException {
+        deleteClient(id.getID());
     }
 
     public void deleteClient(String id) throws NotFoundItemInDatabaseException {
@@ -82,40 +82,40 @@ public class DatabaseService implements IProxyDatabase {
         clientsMap.remove(id);
     }
 
-    public void createProduct(ProductGRPC product) throws DuplicateDatabaseItemException {
-        createProduct(Product.fromProductGRPC(product));
+    public void createProduct(Product product) throws DuplicateDatabaseItemException {
+        createProduct(ProductNative.fromProductGRPC(product));
     }
 
-    public void createProduct(Product product) throws DuplicateDatabaseItemException {
-        if (hasProduct(product.getProductId()))
+    public void createProduct(ProductNative productNative) throws DuplicateDatabaseItemException {
+        if (hasProduct(productNative.getProductId()))
             throw new DuplicateDatabaseItemException();
 
-        productsMap.putIfAbsent(product.getProductId(), product);
+        productsMap.putIfAbsent(productNative.getProductId(), productNative);
     }
 
     public boolean hasProduct(String id) {
         return productsMap.containsKey(id);
     }
-    public Product retrieveProduct(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
-        return retrieveProduct(idgrpc.getIDGRPC());
+    public ProductNative retrieveProduct(ID id) throws NotFoundItemInDatabaseException {
+        return retrieveProduct(id.getID());
     }
 
-    public Product retrieveProduct(String id) throws NotFoundItemInDatabaseException {
+    public ProductNative retrieveProduct(String id) throws NotFoundItemInDatabaseException {
         if (!hasProduct(id)) throw new NotFoundItemInDatabaseException();
         return productsMap.get(id);
     }
 
-    public void updateProduct(ProductGRPC productGRPC) throws NotFoundItemInDatabaseException {
-        updateProduct(Product.fromProductGRPC(productGRPC));
+    public void updateProduct(Product product) throws NotFoundItemInDatabaseException {
+        updateProduct(ProductNative.fromProductGRPC(product));
     }
 
-    public void updateProduct(Product Product) throws NotFoundItemInDatabaseException {
-        if (!hasProduct(Product.getProductId())) throw new NotFoundItemInDatabaseException();
-        productsMap.put(Product.getProductId(), Product);
+    public void updateProduct(ProductNative ProductNative) throws NotFoundItemInDatabaseException {
+        if (!hasProduct(ProductNative.getProductId())) throw new NotFoundItemInDatabaseException();
+        productsMap.put(ProductNative.getProductId(), ProductNative);
     }
 
-    public void deleteProduct(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
-        deleteProduct(idGRPC.getIDGRPC());
+    public void deleteProduct(ID id) throws NotFoundItemInDatabaseException {
+        deleteProduct(id.getID());
     }
 
     public void deleteProduct(String id) throws NotFoundItemInDatabaseException {
@@ -123,31 +123,31 @@ public class DatabaseService implements IProxyDatabase {
         productsMap.remove(id);
     }
 
+    public void createOrder(OrderNative orderNative) throws DuplicateDatabaseItemException {
+        if (ordersMap.containsKey(orderNative.getOrderId())) throw new DuplicateDatabaseItemException();
+        ordersMap.put(orderNative.getOrderId(), orderNative);
+    }
+
     public void createOrder(Order order) throws DuplicateDatabaseItemException {
-        if (ordersMap.containsKey(order.getOrderId())) throw new DuplicateDatabaseItemException();
-        ordersMap.put(order.getOrderId(), order);
+        createOrder(OrderNative.fromOrderGRPC(order));
     }
 
-    public void createOrder(OrderGRPC orderGRPC) throws DuplicateDatabaseItemException {
-        createOrder(Order.fromOrderGRPC(orderGRPC));
-    }
-
-    public Order retrieveOrder(String id) throws NotFoundItemInDatabaseException {
+    public OrderNative retrieveOrder(String id) throws NotFoundItemInDatabaseException {
         if (!ordersMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
         return ordersMap.get(id);
     }
 
-    public Order retrieveOrder(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
-        return retrieveOrder(idGRPC.getIDGRPC());
+    public OrderNative retrieveOrder(ID id) throws NotFoundItemInDatabaseException {
+        return retrieveOrder(id.getID());
+    }
+
+    public void updateOrder(OrderNative orderNative) throws NotFoundItemInDatabaseException {
+        if(!ordersMap.containsKey(orderNative.getOrderId())) throw new NotFoundItemInDatabaseException();
+        ordersMap.put(orderNative.getOrderId(), orderNative);
     }
 
     public void updateOrder(Order order) throws NotFoundItemInDatabaseException {
-        if(!ordersMap.containsKey(order.getOrderId())) throw new NotFoundItemInDatabaseException();
-        ordersMap.put(order.getOrderId(), order);
-    }
-
-    public void updateOrder(OrderGRPC orderGRPC) throws NotFoundItemInDatabaseException {
-        updateOrder(Order.fromOrderGRPC(orderGRPC));
+        updateOrder(OrderNative.fromOrderGRPC(order));
     }
 
     public void deleteOrder(String id) throws NotFoundItemInDatabaseException {
@@ -155,7 +155,7 @@ public class DatabaseService implements IProxyDatabase {
         ordersMap.remove(id);
     }
 
-    public void deleteOrder(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
-        deleteOrder(idGRPC.getIDGRPC());
+    public void deleteOrder(ID id) throws NotFoundItemInDatabaseException {
+        deleteOrder(id.getID());
     }
 }

@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class OrderItem {
+public class OrderItemNative {
     private String productId;
     private String name;
     private int quantity;

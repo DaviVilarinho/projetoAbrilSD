@@ -5,13 +5,10 @@ import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.models.Client;
-import ufu.davigabriel.models.Product;
-import ufu.davigabriel.server.ClientGRPC;
-import ufu.davigabriel.server.IDGRPC;
-import ufu.davigabriel.server.ProductGRPC;
+import ufu.davigabriel.server.Client;
+import ufu.davigabriel.server.ID;
+import ufu.davigabriel.server.Product;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class MosquittoUpdaterMiddleware implements IProxyDatabase {
@@ -55,20 +52,20 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
         return instance;
     }
 
-    public void publishClientChange(ClientGRPC clientGRPC, MosquittoTopics mosquittoTopics) throws MqttException {
-        mqttAsyncClient.publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(clientGRPC).getBytes()));
+    public void publishClientChange(Client client, MosquittoTopics mosquittoTopics) throws MqttException {
+        mqttAsyncClient.publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(client).getBytes()));
     }
 
-    public void publishClientDeletion(IDGRPC idgrpc) throws MqttException {
-        mqttAsyncClient.publish(MosquittoTopics.CLIENT_DELETION_TOPIC.name(), new MqttMessage(idgrpc.toByteArray()));
+    public void publishClientDeletion(ID id) throws MqttException {
+        mqttAsyncClient.publish(MosquittoTopics.CLIENT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
 
-    public void publishProductChange(ProductGRPC productGRPC, MosquittoTopics mosquittoTopics) throws MqttException {
-        mqttAsyncClient.publish(mosquittoTopics.name(), new MqttMessage(productGRPC.toByteArray()));
+    public void publishProductChange(Product product, MosquittoTopics mosquittoTopics) throws MqttException {
+        mqttAsyncClient.publish(mosquittoTopics.name(), new MqttMessage(product.toByteArray()));
     }
 
-    public void publishProductDeletion(IDGRPC idgrpc) throws MqttException {
-        mqttAsyncClient.publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(idgrpc.toByteArray()));
+    public void publishProductDeletion(ID id) throws MqttException {
+        mqttAsyncClient.publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
 
     public void disconnect() {
@@ -82,34 +79,34 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
     }
 
     @Override
-    public void createClient(ClientGRPC clientGRPC) throws DuplicateDatabaseItemException, MqttException {
-        if (databaseService.hasClient(clientGRPC.getCID()))
+    public void createClient(Client client) throws DuplicateDatabaseItemException, MqttException {
+        if (databaseService.hasClient(client.getCID()))
             throw new DuplicateDatabaseItemException();
-        publishClientChange(clientGRPC, MosquittoTopics.CLIENT_CREATION_TOPIC);
+        publishClientChange(client, MosquittoTopics.CLIENT_CREATION_TOPIC);
     }
 
     @Override
-    public void updateClient(ClientGRPC clientGRPC) throws NotFoundItemInDatabaseException {
-
-    }
-
-    @Override
-    public void deleteClient(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
+    public void updateClient(Client client) throws NotFoundItemInDatabaseException {
 
     }
 
     @Override
-    public void createProduct(ProductGRPC product) throws DuplicateDatabaseItemException {
+    public void deleteClient(ID id) throws NotFoundItemInDatabaseException {
 
     }
 
     @Override
-    public void updateProduct(ProductGRPC ProductGRPC) throws NotFoundItemInDatabaseException {
+    public void createProduct(Product product) throws DuplicateDatabaseItemException {
 
     }
 
     @Override
-    public void deleteProduct(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
+    public void updateProduct(Product Product) throws NotFoundItemInDatabaseException {
+
+    }
+
+    @Override
+    public void deleteProduct(ID id) throws NotFoundItemInDatabaseException {
 
     }
 }

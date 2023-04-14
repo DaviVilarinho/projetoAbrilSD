@@ -8,9 +8,9 @@ import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.server.ClientGRPC;
-import ufu.davigabriel.server.IDGRPC;
-import ufu.davigabriel.server.ProductGRPC;
+import ufu.davigabriel.server.Client;
+import ufu.davigabriel.server.ID;
+import ufu.davigabriel.server.Product;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,9 +25,9 @@ public enum MosquittoTopics {
     CLIENT_CREATION_TOPIC("admin/client/creation", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-        ClientGRPC clientGRPC = new Gson().fromJson(message.toString(), ClientGRPC.class);
+        Client client = new Gson().fromJson(message.toString(), Client.class);
         try {
-            databaseService.createClient(clientGRPC);
+            databaseService.createClient(client);
         } catch (DuplicateDatabaseItemException e) {
             throw new RuntimeException(e);
         }
@@ -35,9 +35,9 @@ public enum MosquittoTopics {
     }), CLIENT_UPDATE_TOPIC("admin/client/update", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-        ClientGRPC clientGRPC = new Gson().fromJson(message.toString(), ClientGRPC.class);
+        Client client = new Gson().fromJson(message.toString(), Client.class);
         try {
-            databaseService.updateClient(clientGRPC);
+            databaseService.updateClient(client);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
@@ -45,14 +45,14 @@ public enum MosquittoTopics {
     }), CLIENT_DELETION_TOPIC("admin/client/deletion", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-        IDGRPC idgrpc = null;
+        ID id = null;
         try {
-            idgrpc = (IDGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
+            id = (ID) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         try {
-            databaseService.deleteClient(idgrpc);
+            databaseService.deleteClient(id);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
@@ -65,14 +65,14 @@ public enum MosquittoTopics {
     }), PRODUCT_CREATION_TOPIC("admin/product/creation", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-        ProductGRPC productGRPC = null;
+        Product product = null;
         try {
-            productGRPC = (ProductGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
+            product = (Product) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         try {
-            databaseService.createProduct(productGRPC);
+            databaseService.createProduct(product);
         } catch (DuplicateDatabaseItemException e) {
             throw new RuntimeException(e);
         }
@@ -80,14 +80,14 @@ public enum MosquittoTopics {
     }), PRODUCT_UPDATE_TOPIC("admin/product/update", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-        ProductGRPC productGRPC = null;
+        Product product = null;
         try {
-            productGRPC = (ProductGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
+            product = (Product) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         try {
-            databaseService.updateProduct(productGRPC);
+            databaseService.updateProduct(product);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
@@ -96,14 +96,14 @@ public enum MosquittoTopics {
     ), PRODUCT_DELETION_TOPIC("admin/product/deletion", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-        IDGRPC idgrpc = null;
+        ID id = null;
         try {
-            idgrpc = (IDGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
+            id = (ID) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         try {
-            databaseService.deleteProduct(idgrpc);
+            databaseService.deleteProduct(id);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }

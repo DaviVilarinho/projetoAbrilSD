@@ -16,8 +16,8 @@ public class AdminPortalServerTest {
 
     @Test
     public void shouldCrudClient() throws IOException, NotFoundItemInDatabaseException, InterruptedException {
-        ClientGRPC clientThatShouldBeCreated = RandomUtils.generateRandomClient().toClientGRPC();
-        ClientGRPC clientThatShouldNotBeCreated = RandomUtils.generateRandomClient().toClientGRPC();
+        Client clientThatShouldBeCreated = RandomUtils.generateRandomClient().toClient();
+        Client clientThatShouldNotBeCreated = RandomUtils.generateRandomClient().toClient();
 
         String serverName = InProcessServerBuilder.generateName();
 
@@ -28,11 +28,10 @@ public class AdminPortalServerTest {
         AdminPortalGrpc.AdminPortalBlockingStub blockingStub = AdminPortalGrpc.newBlockingStub(
                 grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()));
 
-        ReplyGRPC replyGrpc = blockingStub.createClient(clientThatShouldBeCreated);
-        ClientOrErrorGRPC clientGrpc = blockingStub.retrieveClient(IDGRPC.newBuilder().setIDGRPC(clientThatShouldBeCreated.getCID()).build());
-        Assert.assertEquals(clientThatShouldBeCreated, clientGrpc.getClientGRPC());
-        Assert.assertNotEquals(clientThatShouldNotBeCreated, clientGrpc.getClientGRPC());
-        clientGrpc = blockingStub.retrieveClient(IDGRPC.newBuilder().setIDGRPC(clientThatShouldNotBeCreated.getCID()).build());
-        Assert.assertEquals(404, clientGrpc.getReplyGRPC().getError());
+        Reply reply = blockingStub.createClient(clientThatShouldBeCreated);
+        Client client = blockingStub.retrieveClient(ID.newBuilder().setID(clientThatShouldBeCreated.getCID()).build());
+        Assert.assertEquals(clientThatShouldBeCreated, client);
+        Assert.assertNotEquals(clientThatShouldNotBeCreated, client);
+        client = blockingStub.retrieveClient(ID.newBuilder().setID(clientThatShouldNotBeCreated.getCID()).build());
     }
 }
