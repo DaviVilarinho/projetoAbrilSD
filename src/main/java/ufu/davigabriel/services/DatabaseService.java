@@ -35,6 +35,12 @@ public class DatabaseService {
         return instance;
     }
 
+    public void listAll() {
+        productsMap.forEach((s, product) -> System.out.println(product));
+        clientsMap.forEach((s, client) -> System.out.println(client));
+        ordersMap.forEach((s, order) -> System.out.println(order));
+    }
+
     public void createClient(ClientGRPC client) throws DuplicateDatabaseItemException{
         createClient(Client.fromClientGRPC(client));
     }
