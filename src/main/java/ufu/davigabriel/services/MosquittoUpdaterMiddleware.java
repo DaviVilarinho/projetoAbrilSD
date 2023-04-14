@@ -20,22 +20,22 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
     final private MemoryPersistence PERSISTENCE = new MemoryPersistence();
     final private DatabaseService databaseService = DatabaseService.getInstance();
     private int QOS = 2;
-    private MqttAsyncClient mqttAsyncClient;
+    private MqttClient mqttClient;
 
     private MosquittoUpdaterMiddleware() {
         try {
             String BROKER = SHOULD_CONNECT_ONLINE ? "tcp://broker.hivemq.com:1883" : "tcp://localhost:1883";
-            this.mqttAsyncClient = new MqttAsyncClient(BROKER, CLIENT_ID, PERSISTENCE);
+            this.mqttClient = new MqttClient(BROKER, CLIENT_ID, PERSISTENCE);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setUserName(CLIENT_ID);
             connOpts.setCleanSession(true);
             connOpts.setAutomaticReconnect(true);
             System.out.println("Inicializando conexao com broker MQTT");
-            this.mqttAsyncClient.setCallback(new MosquittoTopicCallback());
-            IMqttToken iMqttToken = this.mqttAsyncClient.connect(connOpts);
-            iMqttToken.waitForCompletion();
+            this.mqttClient.setCallback(new MosquittoTopicCallback());
+            this.mqttClient.connect();
             System.out.println("Conectado com sucesso");
-            this.mqttAsyncClient.subscribe("#", 0);
+            Object[] topicsObjectsArray = Arrays.stream(MosquittoTopics.values()).map(MosquittoTopics::name).toArray();
+            this.mqttClient.subscribe(Arrays.copyOf(topicsObjectsArray, topicsObjectsArray.length, String[].class));
             System.out.println("Subscrito...");
         } catch (MqttException me) {
             System.out.println("Nao foi possivel inicializar o client MQTT, encerrando");
@@ -54,25 +54,25 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
     }
 
     public void publishClientChange(Client client, MosquittoTopics mosquittoTopics) throws MqttException {
-        mqttAsyncClient.publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(client).getBytes()));
+        mqttClient.publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(client).getBytes()));
     }
 
     public void publishClientDeletion(ID id) throws MqttException {
-        mqttAsyncClient.publish(MosquittoTopics.CLIENT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
+        mqttClient.publish(MosquittoTopics.CLIENT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
 
     public void publishProductChange(Product product, MosquittoTopics mosquittoTopics) throws MqttException {
-        mqttAsyncClient.publish(mosquittoTopics.name(), new MqttMessage(product.toByteArray()));
+        mqttClient.publish(mosquittoTopics.name(), new MqttMessage(product.toByteArray()));
     }
 
     public void publishProductDeletion(ID id) throws MqttException {
-        mqttAsyncClient.publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
+        mqttClient.publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
 
     public void disconnect() {
         System.out.println("Desconectando...");
         try {
-            this.mqttAsyncClient.disconnect();
+            this.mqttClient.disconnect();
             System.out.println("Desconectado com sucesso");
         } catch (MqttException e) {
             System.out.println("Nao foi possivel desconectar do broker... Conexao estagnada");
