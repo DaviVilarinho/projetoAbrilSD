@@ -210,8 +210,4 @@ public class AdminPortalServer {
             }
         }
     }
-
-    static class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {
-        private DatabaseService databaseService = DatabaseService.getInstance();
-    }
 }

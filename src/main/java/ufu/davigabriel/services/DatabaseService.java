@@ -8,6 +8,7 @@ import ufu.davigabriel.models.Order;
 import ufu.davigabriel.models.Product;
 import ufu.davigabriel.server.ClientGRPC;
 import ufu.davigabriel.server.IDGRPC;
+import ufu.davigabriel.server.OrderGRPC;
 import ufu.davigabriel.server.ProductGRPC;
 
 import java.util.HashMap;
@@ -50,8 +51,8 @@ public class DatabaseService implements IProxyDatabase {
         clientsMap.putIfAbsent(client.getClientId(), client);
     }
 
-    public Client retrieveClient(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
-        return retrieveClient(idgrpc.getIDGRPC());
+    public Client retrieveClient(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
+        return retrieveClient(idGRPC.getIDGRPC());
     }
 
     public Client retrieveClient(String id) throws NotFoundItemInDatabaseException {
@@ -72,8 +73,8 @@ public class DatabaseService implements IProxyDatabase {
         clientsMap.put(client.getClientId(), client);
     }
 
-    public void deleteClient(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
-        deleteClient(idgrpc.getIDGRPC());
+    public void deleteClient(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
+        deleteClient(idGRPC.getIDGRPC());
     }
 
     public void deleteClient(String id) throws NotFoundItemInDatabaseException {
@@ -104,8 +105,8 @@ public class DatabaseService implements IProxyDatabase {
         return productsMap.get(id);
     }
 
-    public void updateProduct(ProductGRPC ProductGRPC) throws NotFoundItemInDatabaseException {
-        updateProduct(Product.fromProductGRPC(ProductGRPC));
+    public void updateProduct(ProductGRPC productGRPC) throws NotFoundItemInDatabaseException {
+        updateProduct(Product.fromProductGRPC(productGRPC));
     }
 
     public void updateProduct(Product Product) throws NotFoundItemInDatabaseException {
@@ -113,12 +114,48 @@ public class DatabaseService implements IProxyDatabase {
         productsMap.put(Product.getProductId(), Product);
     }
 
-    public void deleteProduct(IDGRPC idgrpc) throws NotFoundItemInDatabaseException {
-        deleteProduct(idgrpc.getIDGRPC());
+    public void deleteProduct(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
+        deleteProduct(idGRPC.getIDGRPC());
     }
 
     public void deleteProduct(String id) throws NotFoundItemInDatabaseException {
         if (!hasProduct(id)) throw new NotFoundItemInDatabaseException();
         productsMap.remove(id);
+    }
+
+    public void createOrder(Order order) throws DuplicateDatabaseItemException {
+        if (ordersMap.containsKey(order.getOrderId())) throw new DuplicateDatabaseItemException();
+        ordersMap.put(order.getOrderId(), order);
+    }
+
+    public void createOrder(OrderGRPC orderGRPC) throws DuplicateDatabaseItemException {
+        createOrder(Order.fromOrderGRPC(orderGRPC));
+    }
+
+    public Order retrieveOrder(String id) throws NotFoundItemInDatabaseException {
+        if (!ordersMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        return ordersMap.get(id);
+    }
+
+    public Order retrieveOrder(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
+        return retrieveOrder(idGRPC.getIDGRPC());
+    }
+
+    public void updateOrder(Order order) throws NotFoundItemInDatabaseException {
+        if(!ordersMap.containsKey(order.getOrderId())) throw new NotFoundItemInDatabaseException();
+        ordersMap.put(order.getOrderId(), order);
+    }
+
+    public void updateOrder(OrderGRPC orderGRPC) throws NotFoundItemInDatabaseException {
+        updateOrder(Order.fromOrderGRPC(orderGRPC));
+    }
+
+    public void deleteOrder(String id) throws NotFoundItemInDatabaseException {
+        if(!ordersMap.containsKey(id)) throw new NotFoundItemInDatabaseException();
+        ordersMap.remove(id);
+    }
+
+    public void deleteOrder(IDGRPC idGRPC) throws NotFoundItemInDatabaseException {
+        deleteOrder(idGRPC.getIDGRPC());
     }
 }

@@ -14,18 +14,19 @@ import ufu.davigabriel.server.ProductGRPC;
 public class Product {
     private String productId;
     private String name;
-    private String description;
-    private double price;
     private int quantity;
+    private double price;
+    private String description;
 
     public ProductGRPC toProductGRPC() {
         return ProductGRPC.newBuilder()
                 .setPID(getProductId())
                 .setData(new JSONObject()
+                        .put("PID", productId)
                         .put("name", name)
-                        .put("description", description)
-                        .put("price", price)
                         .put("quantity", quantity)
+                        .put("price", price)
+                        .put("description", description)
                         .toString()
                 )
                 .build();
@@ -34,11 +35,11 @@ public class Product {
     public static Product fromProductGRPC(ProductGRPC ProductGRPC) {
         JSONObject data = new JSONObject(ProductGRPC.getData());
         return Product.builder()
-                .productId(ProductGRPC.getPID())
+                .productId(data.getString("PID"))
                 .name(data.getString("name"))
-                .description(data.getString("description"))
-                .price(data.getDouble("price"))
                 .quantity(data.getInt("quantity"))
+                .price(data.getDouble("price"))
+                .description(data.getString("description"))
                 .build();
     }
 }
