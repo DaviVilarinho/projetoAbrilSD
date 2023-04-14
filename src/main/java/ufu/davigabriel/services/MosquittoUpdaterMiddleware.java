@@ -1,29 +1,22 @@
 package ufu.davigabriel.services;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import ufu.davigabriel.models.Order;
-import ufu.davigabriel.models.Product;
 import ufu.davigabriel.server.ClientGRPC;
 import ufu.davigabriel.server.IDGRPC;
-import ufu.davigabriel.server.OrderGRPC;
 import ufu.davigabriel.server.ProductGRPC;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.Random;
 
 public class MosquittoUpdaterMiddleware {
     private static final MosquittoUpdaterMiddleware instance = new MosquittoUpdaterMiddleware();
-    private int QOS = 2;
     final private boolean SHOULD_CONNECT_ONLINE = false;
     final private String RANDOM_ID = Integer.valueOf(new Random().nextInt(100000000)).toString();
     final private String CLIENT_ID = SHOULD_CONNECT_ONLINE ? "publisher-davi-vilarinho-gabriel-amaral-gbc074" : RANDOM_ID;
     final private MemoryPersistence PERSISTENCE = new MemoryPersistence();
     final private DatabaseService databaseService = DatabaseService.getInstance();
+    private int QOS = 2;
     private MqttClient mqttClient;
 
     private MosquittoUpdaterMiddleware() {
@@ -33,44 +26,16 @@ public class MosquittoUpdaterMiddleware {
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             System.out.println("Inicializando conexao com broker MQTT");
+            this.mqttClient.setCallback(new MosquittoTopicCallback());
             this.mqttClient.connect(connOpts);
             System.out.println("Conectado com sucesso");
-            this.mqttClient.subscribe(MosquittoTopics.CLIENT_CREATION_TOPIC.name(), QOS, (topic, message) -> {
-                System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-                ClientGRPC clientGRPC = (ClientGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
-                databaseService.createClient(clientGRPC);
-                databaseService.listAll();
-            });
-            this.mqttClient.subscribe(MosquittoTopics.CLIENT_UPDATE_TOPIC.name(), QOS, (topic, message) -> {
-                System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-                ClientGRPC clientGRPC = (ClientGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
-                databaseService.updateClient(clientGRPC);
-                databaseService.listAll();
-            });
-            this.mqttClient.subscribe(MosquittoTopics.CLIENT_DELETION_TOPIC.name(), QOS, (topic, message) -> {
-                System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-                IDGRPC idgrpc = (IDGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
-                databaseService.deleteClient(idgrpc);
-                databaseService.listAll();
-            });
-            this.mqttClient.subscribe(MosquittoTopics.PRODUCT_CREATION_TOPIC.name(), QOS, (topic, message) -> {
-                System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-                ProductGRPC productGRPC = (ProductGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
-                databaseService.createProduct(productGRPC);
-                databaseService.listAll();
-            });
-            this.mqttClient.subscribe(MosquittoTopics.PRODUCT_UPDATE_TOPIC.name(), QOS, (topic, message) -> {
-                System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-                ProductGRPC productGRPC = (ProductGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
-                databaseService.updateProduct(productGRPC);
-                databaseService.listAll();
-            });
-            this.mqttClient.subscribe(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), QOS, (topic, message) -> {
-                System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-                IDGRPC idgrpc = (IDGRPC) new ObjectInputStream(new ByteArrayInputStream(message.getPayload())).readObject();
-                databaseService.deleteProduct(idgrpc);
-                databaseService.listAll();
-            });
+            /*
+            Object[] topics = Arrays.stream(MosquittoTopics.values()).map(MosquittoTopics::getTopic).toArray();
+            this.mqttClient.subscribe(Arrays.copyOf(topics, topics.length, String[].class));
+            */
+            this.mqttClient.subscribe(MosquittoTopics.CLIENT_CREATION_TOPIC.getTopic());
+            this.mqttClient.wait();
+            System.out.println("Subscrevendo...");
         } catch (MqttException me) {
             System.out.println("Nao foi possivel inicializar o client MQTT, encerrando");
             System.out.println("reason: " + me.getReasonCode());
@@ -80,7 +45,13 @@ public class MosquittoUpdaterMiddleware {
             System.out.println("exception: " + me);
             me.printStackTrace();
             System.exit(-1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public static MosquittoUpdaterMiddleware getInstance() {
+        return instance;
     }
 
     public void publishClientChange(ClientGRPC clientGRPC, MosquittoTopics mosquittoTopics) throws MqttException {
@@ -97,10 +68,6 @@ public class MosquittoUpdaterMiddleware {
 
     public void publishProductDeletion(IDGRPC idgrpc) throws MqttException {
         mqttClient.publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(idgrpc.toByteArray()));
-    }
-
-    public static MosquittoUpdaterMiddleware getInstance() {
-        return instance;
     }
 
     public void disconnect() {

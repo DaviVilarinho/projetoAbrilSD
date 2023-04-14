@@ -1,9 +1,8 @@
 package ufu.davigabriel.server;
 
-import io.grpc.Server;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
-import io.grpc.Status;
+import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ufu.davigabriel.client.AdminPortalReply;
@@ -18,6 +17,14 @@ import java.util.concurrent.TimeUnit;
 
 public class AdminPortalServer {
     private Server server;
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        final AdminPortalServer server = new AdminPortalServer();
+        MosquittoUpdaterMiddleware.getInstance();
+        server.start();
+        System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
+        server.blockUntilShutdown();
+    }
 
     private void start() throws IOException {
         /* The port on which the server should run */
@@ -56,13 +63,6 @@ public class AdminPortalServer {
         }
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        final AdminPortalServer server = new AdminPortalServer();
-        MosquittoUpdaterMiddleware.getInstance();
-        server.start();
-        System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
-        server.blockUntilShutdown();
-    }
     static public class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
         private DatabaseService databaseService = DatabaseService.getInstance();
         private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.getInstance();
@@ -210,6 +210,7 @@ public class AdminPortalServer {
             }
         }
     }
+
     static class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {
         private DatabaseService databaseService = DatabaseService.getInstance();
     }

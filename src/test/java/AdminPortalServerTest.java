@@ -1,22 +1,11 @@
-import io.grpc.Server;
-import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.stub.ClientResponseObserver;
-import io.grpc.stub.StreamObserver;
-import io.grpc.stub.StreamObservers;
 import io.grpc.testing.GrpcCleanupRule;
-import lombok.Getter;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
-import ufu.davigabriel.exceptions.DatabaseException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.models.Client;
 import ufu.davigabriel.server.*;
-import ufu.davigabriel.services.DatabaseService;
 import utils.RandomUtils;
 
 import java.io.IOException;
@@ -24,6 +13,7 @@ import java.io.IOException;
 public class AdminPortalServerTest {
     @Rule
     public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
+
     @Test
     public void shouldCrudClient() throws IOException, NotFoundItemInDatabaseException, InterruptedException {
         ClientGRPC clientThatShouldBeCreated = RandomUtils.generateRandomClient().toClientGRPC();

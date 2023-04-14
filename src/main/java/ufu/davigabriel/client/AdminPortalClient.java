@@ -5,7 +5,6 @@ import ufu.davigabriel.models.Product;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Scanner;
 
 public class AdminPortalClient {
@@ -40,7 +39,7 @@ public class AdminPortalClient {
                     String zipCode = scanner.nextLine();
 
                     AdminPortalReply response = createClient(Client.builder().clientId(userId).name(name).zipCode(zipCode).build());
-                    if(response.getError() != 0)
+                    if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("CLIENTE INSERIDO");
@@ -61,7 +60,7 @@ public class AdminPortalClient {
                     System.out.print("Escreva o ID do cliente: ");
 
                     AdminPortalReply response = updateClient(Client.builder().clientId(scanner.nextLine()).name(name).zipCode(zipCode).build());
-                    if(response.getError() != 0)
+                    if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("CLIENTE ALTERADO");
@@ -69,7 +68,7 @@ public class AdminPortalClient {
                 case REMOVER_CLIENTE -> {
                     System.out.print("Escreva o ID do cliente: ");
                     AdminPortalReply response = removeClient(scanner.nextLine());
-                    if(response.getError() != 0)
+                    if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("CLIENTE REMOVIDO");
@@ -93,7 +92,7 @@ public class AdminPortalClient {
                                 .price(price)
                                 .quantity(quantity)
                                 .build());
-                        if(response.getError() != 0)
+                        if (response.getError() != 0)
                             System.out.println("ERRO: " + response.getDescription());
                         else
                             System.out.println("CLIENTE INSERIDO");
@@ -128,7 +127,7 @@ public class AdminPortalClient {
                                 .price(price)
                                 .quantity(quantity)
                                 .build());
-                        if(response.getError() != 0)
+                        if (response.getError() != 0)
                             System.out.println("ERRO: " + response.getDescription());
                         else
                             System.out.println("PRODUTO ATUALIZADO");
@@ -139,7 +138,7 @@ public class AdminPortalClient {
                 case REMOVER_PRODUTO -> {
                     System.out.print("Escreva o ID do produto: ");
                     AdminPortalReply response = removeProduct(scanner.nextLine());
-                    if(response.getError() != 0)
+                    if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("PRODUTO REMOVIDO");
@@ -175,6 +174,7 @@ public class AdminPortalClient {
         System.out.println("Buscou um ID " + clientId);
         return optClient;
     }
+
     static private AdminPortalReply updateClient(Client client) {
         if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que atualiza o cliente no banco e na cache
@@ -202,12 +202,14 @@ public class AdminPortalClient {
 
         return AdminPortalReply.DUPLICATA;
     }
+
     static private Optional<Product> retrieveProduct(String productId) {
         Optional<Product> optionalProduct = Optional.empty();
 
         System.out.println("Buscou um ID " + productId);
         return optionalProduct;
     }
+
     static private AdminPortalReply updateProduct(Product product) {
         if (!true) {
             System.out.println("Atualizou produto " + product.getProductId());
@@ -216,6 +218,7 @@ public class AdminPortalClient {
 
         return AdminPortalReply.DUPLICATA;
     }
+
     static private AdminPortalReply removeProduct(String productId) {
         if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que remove o cliente do banco e da cache (se estiver la)
