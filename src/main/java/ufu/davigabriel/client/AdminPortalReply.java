@@ -9,7 +9,7 @@ public enum AdminPortalReply {
     SUCESSO(0, ""),
     DUPLICATA(400, "Item ja existe."),
     INEXISTENTE(404, "Item nao existe."),
-    ERRO_DESCONHECIDO(502, "Falha Interna");
+    ERRO_DESCONHECIDO(502, "Falha interna.");
 
     private final int error;
     private final String description;

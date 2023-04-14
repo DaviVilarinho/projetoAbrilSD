@@ -21,6 +21,7 @@ public class Client {
         return ClientGRPC.newBuilder()
                 .setCID(getClientId())
                 .setData(new JSONObject()
+                        .put("CID", clientId)
                         .put("name", name)
                         .put("zipCode", zipCode)
                         .toString()
@@ -37,7 +38,7 @@ public class Client {
     public static Client fromClientGRPC(ClientGRPC clientGRPC) {
         JSONObject data = new JSONObject(clientGRPC.getData());
         return Client.builder()
-                .clientId(clientGRPC.getCID())
+                .clientId(data.getString("CID"))
                 .name(data.getString("name"))
                 .zipCode(data.getString("zipCode"))
                 .build();

@@ -9,8 +9,9 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class OrderItems {
+public class OrderItem {
     private String productId;
+    private String name;
     private int quantity;
-    private double value;
+    private double price;
 }

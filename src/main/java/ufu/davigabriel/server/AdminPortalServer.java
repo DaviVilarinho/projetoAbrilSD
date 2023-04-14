@@ -57,7 +57,7 @@ public class AdminPortalServer {
 
         final AdminPortalServer server = new AdminPortalServer();
         server.start();
-        System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
+        System.out.println("Order Portal running...");
         server.blockUntilShutdown();
     }
     static public class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
@@ -175,8 +175,5 @@ public class AdminPortalServer {
                 responseObserver.onCompleted();
             }
         }
-    }
-    static class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {
-        private DatabaseService databaseService = DatabaseService.getInstance();
     }
 }
