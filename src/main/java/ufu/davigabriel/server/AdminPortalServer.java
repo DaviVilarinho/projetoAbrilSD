@@ -20,7 +20,6 @@ public class AdminPortalServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         final AdminPortalServer server = new AdminPortalServer();
-        MosquittoUpdaterMiddleware.getInstance();
         server.start();
         System.out.println("AQUI CONSEGUIMOS FINALMENTE COLOCAR O GRPC");
         server.blockUntilShutdown();
@@ -70,8 +69,7 @@ public class AdminPortalServer {
         @Override
         public void createClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_CREATION_TOPIC);
-                databaseService.createClient(request);
+                mosquittoUpdaterMiddleware.createClient(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(AdminPortalReply.SUCESSO.getError())
                         .setDescription(AdminPortalReply.SUCESSO.getDescription())

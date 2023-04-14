@@ -9,6 +9,7 @@ import ufu.davigabriel.server.Client;
 import ufu.davigabriel.server.ID;
 import ufu.davigabriel.server.Product;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class MosquittoUpdaterMiddleware implements IProxyDatabase {
@@ -34,7 +35,7 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
             IMqttToken iMqttToken = this.mqttAsyncClient.connect(connOpts);
             iMqttToken.waitForCompletion();
             System.out.println("Conectado com sucesso");
-            this.mqttAsyncClient.subscribe("admin/#", 0);
+            this.mqttAsyncClient.subscribe("#", 0);
             System.out.println("Subscrito...");
         } catch (MqttException me) {
             System.out.println("Nao foi possivel inicializar o client MQTT, encerrando");
