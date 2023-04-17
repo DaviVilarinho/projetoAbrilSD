@@ -10,7 +10,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class OrderItemNative {
-    private String productId;
+    private String PID;
     private String name;
     private int quantity;
     private double price;

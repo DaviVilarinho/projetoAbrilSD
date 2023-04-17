@@ -9,11 +9,11 @@ import ufu.davigabriel.server.Product;
 
 public interface IProxyDatabase {
     void createClient(Client client) throws DuplicateDatabaseItemException, MqttException;
-
     void updateClient(Client client) throws NotFoundItemInDatabaseException;
     void deleteClient(ID id) throws NotFoundItemInDatabaseException;
-    void createProduct(Product product) throws DuplicateDatabaseItemException;
 
+    void createProduct(Product product) throws DuplicateDatabaseItemException;
     void updateProduct(Product Product) throws NotFoundItemInDatabaseException;
     void deleteProduct(ID id) throws NotFoundItemInDatabaseException;
+
 }

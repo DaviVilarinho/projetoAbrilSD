@@ -1,10 +1,8 @@
 package ufu.davigabriel.services;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.ToString;
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
@@ -16,8 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Getter
 @ToString
@@ -57,11 +53,6 @@ public enum MosquittoTopics {
             throw new RuntimeException(e);
         }
         databaseService.listAll();
-    }), ORDER_CREATION_TOPIC("order/creation", (topic, message) -> {//TODO
-    }), ORDER_UPDATE_TOPIC("order/update", (topic, message) -> {
-        //TODO
-    }), ORDER_DELETION_TOPIC("order/deletion", (topic, message) -> {
-        //TODO
     }), PRODUCT_CREATION_TOPIC("admin/product/creation", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
@@ -92,8 +83,7 @@ public enum MosquittoTopics {
             throw new RuntimeException(e);
         }
         databaseService.listAll();
-    }
-    ), PRODUCT_DELETION_TOPIC("admin/product/deletion", (topic, message) -> {
+    }), PRODUCT_DELETION_TOPIC("admin/product/deletion", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
         System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         ID id = null;
@@ -108,6 +98,12 @@ public enum MosquittoTopics {
             throw new RuntimeException(e);
         }
         databaseService.listAll();
+    }), ORDER_CREATION_TOPIC("order/creation", (topic, message) -> {
+        //TODO
+    }), ORDER_UPDATE_TOPIC("order/update", (topic, message) -> {
+        //TODO
+    }), ORDER_DELETION_TOPIC("order/deletion", (topic, message) -> {
+        //TODO
     });
 
     private String topic;

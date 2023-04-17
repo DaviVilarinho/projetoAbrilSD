@@ -4,6 +4,9 @@ import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
+import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.services.DatabaseService;
 
 import java.io.IOException;
@@ -63,22 +66,71 @@ public class OrderPortalServer {
 
         @Override
         public void createOrder(Order request, StreamObserver<Reply> responseObserver) {
+            try {
+                databaseService.createOrder(request);
+                responseObserver.onNext(Reply.newBuilder()
+                        .setError(ReplyNative.SUCESSO.getError())
+                        .setDescription(ReplyNative.SUCESSO.getDescription())
+                        .build());
+            } catch (DuplicateDatabaseItemException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void retrieveOrder(ID request, StreamObserver<Order> responseObserver) {
+            try {
+                responseObserver.onNext(databaseService.retrieveOrder(request).toOrder());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void updateOrder(Order request, StreamObserver<Reply> responseObserver) {
+            try {
+                databaseService.updateOrder(request);
+                responseObserver.onNext(Reply.newBuilder()
+                        .setError(ReplyNative.SUCESSO.getError())
+                        .setDescription(ReplyNative.SUCESSO.getDescription())
+                        .build());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void deleteOrder(ID request, StreamObserver<Reply> responseObserver) {
+            try {
+                databaseService.deleteProduct(request);
+                responseObserver.onNext(Reply.newBuilder()
+                        .setError(ReplyNative.SUCESSO.getError())
+                        .setDescription(ReplyNative.SUCESSO.getDescription())
+                        .build());
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
 
         @Override
         public void retrieveClientOrders(ID request, StreamObserver<Order> responseObserver) {
+            try {
+                databaseService.retrieveClientOrders(request).forEach((order) -> {
+                    responseObserver.onNext(order.toOrder());
+                });
+            } catch (NotFoundItemInDatabaseException exception) {
+                exception.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
         }
     }
 

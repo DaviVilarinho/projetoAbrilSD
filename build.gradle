@@ -22,13 +22,15 @@ repositories {
 }
 
 dependencies {
-    implementation("org.json:json:20230227")
-
+    //Lombok
     compileOnly("org.projectlombok:lombok:1.18.26")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
-
     testCompileOnly("org.projectlombok:lombok:1.18.26")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.26")
+    //MQTT
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
+    //Gson
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation("io.grpc:grpc-protobuf:${grpcVersion}")
     implementation("io.grpc:grpc-stub:${grpcVersion}")
@@ -42,12 +44,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.2")
     testImplementation("org.mockito:mockito-core:3.4.0")
-
-    // Para MQTT
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation 'com.google.code.gson:gson:2.10.1'
-
 }
 
 tasks.test {

@@ -1,12 +1,11 @@
 package ufu.davigabriel.exceptions;
 
 import io.grpc.stub.StreamObserver;
-import ufu.davigabriel.client.AdminPortalReply;
-import ufu.davigabriel.server.Reply;
+import ufu.davigabriel.models.ReplyNative;
 
-public class DuplicateDatabaseItemException extends DatabaseException{
+public class DuplicateDatabaseItemException extends DatabaseException {
     @Override
     public void replyError(StreamObserver responseObserver) {
-        replyError(responseObserver, AdminPortalReply.DUPLICATA);
+        replyError(responseObserver, ReplyNative.DUPLICATA);
     }
 }

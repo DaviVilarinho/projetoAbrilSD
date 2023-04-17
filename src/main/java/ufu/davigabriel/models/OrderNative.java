@@ -1,11 +1,10 @@
 package ufu.davigabriel.models;
 
+import com.google.gson.Gson;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import ufu.davigabriel.server.Order;
 
 import java.util.ArrayList;
@@ -15,56 +14,19 @@ import java.util.ArrayList;
 @Getter
 @ToString
 public class OrderNative {
-    private String orderId;
-    private String clientId;
-    private ArrayList<OrderItemNative> orderItemNatives;
+    private String OID;
+    private String CID;
+    private ArrayList<OrderItemNative> products;
 
-    public static OrderNative fromOrderGRPC(Order order) {
-        JSONObject data = new JSONObject(order.getData());
-        return OrderNative.builder()
-                .orderId(order.getOID())
-                .clientId(order.getCID())
-                .orderItemNatives(mapFromJSONArray(data.getJSONArray("products")))
-                .build();
+    public static OrderNative fromOrder(Order order) {
+        return new Gson().fromJson(order.getData(), OrderNative.class);
     }
 
-    public Order toOrderGRPC() {
+    public Order toOrder() {
         return Order.newBuilder()
-                .setOID(orderId)
-                .setCID(clientId)
-                .setData(new JSONObject()
-                        .put("OID", orderId)
-                        .put("CID", clientId)
-                        .put("products", mapToJSONArray())
-                        .toString()
-                )
+                .setOID(getOID())
+                .setCID(getCID())
+                .setData(new Gson().toJson(this))
                 .build();
-    }
-
-    private JSONArray mapToJSONArray(){
-        JSONArray jsonArray = new JSONArray();
-        orderItemNatives.forEach((oI) -> {
-            jsonArray.put(new JSONObject()
-                    .put("name", oI.getName())
-                    .put("quantity", oI.getQuantity())
-                    .put("price", oI.getPrice())
-            );
-        });
-
-        return jsonArray;
-    }
-
-    private static ArrayList<OrderItemNative> mapFromJSONArray(JSONArray jsonArray){
-        ArrayList<OrderItemNative> arrayList = new ArrayList<>();
-        jsonArray.forEach((object) -> {
-            JSONObject jsonObject = (JSONObject) object;
-            arrayList.add(OrderItemNative.builder()
-                    .name(jsonObject.getString("name"))
-                    .quantity(jsonObject.getInt("quantity"))
-                    .price(jsonObject.getDouble("price"))
-                    .build()
-            );
-        });
-        return arrayList;
     }
 }

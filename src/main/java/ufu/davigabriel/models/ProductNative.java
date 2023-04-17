@@ -1,10 +1,10 @@
 package ufu.davigabriel.models;
 
+import com.google.gson.Gson;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.json.JSONObject;
 import ufu.davigabriel.server.Product;
 
 @Getter
@@ -12,35 +12,21 @@ import ufu.davigabriel.server.Product;
 @Builder
 @ToString
 public class ProductNative {
-    private String productId;
+    private String PID;
     private String name;
     private int quantity;
     private double price;
     private String description;
 
-    public Product toProductGRPC() {
+    public Product toProduct() {
         return Product.newBuilder()
-                .setPID(getProductId())
-                .setData(new JSONObject()
-                        .put("PID", productId)
-                        .put("name", name)
-                        .put("quantity", quantity)
-                        .put("price", price)
-                        .put("description", description)
-                        .toString()
-                )
+                .setPID(getPID())
+                .setData(new Gson().toJson(this))
                 .build();
     }
 
-    public static ProductNative fromProductGRPC(Product Product) {
-        JSONObject data = new JSONObject(Product.getData());
-        return ProductNative.builder()
-                .productId(data.getString("PID"))
-                .name(data.getString("name"))
-                .quantity(data.getInt("quantity"))
-                .price(data.getDouble("price"))
-                .description(data.getString("description"))
-                .build();
+    public static ProductNative fromProduct(Product product) {
+        return new Gson().fromJson(product.getData(), ProductNative.class);
     }
 }
 

@@ -2,6 +2,7 @@ package ufu.davigabriel.client;
 
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
+import ufu.davigabriel.models.ReplyNative;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -38,7 +39,11 @@ public class AdminPortalClient {
                     System.out.print("Escreva o Novo zipCode do cliente: ");
                     String zipCode = scanner.nextLine();
 
-                    AdminPortalReply response = createClient(ClientNative.builder().clientId(userId).name(name).zipCode(zipCode).build());
+                    ReplyNative response = createClient(ClientNative.builder()
+                            .CID(userId)
+                            .name(name)
+                            .zipCode(zipCode)
+                            .build());
                     if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -59,7 +64,11 @@ public class AdminPortalClient {
                     String zipCode = scanner.nextLine();
                     System.out.print("Escreva o ID do cliente: ");
 
-                    AdminPortalReply response = updateClient(ClientNative.builder().clientId(scanner.nextLine()).name(name).zipCode(zipCode).build());
+                    ReplyNative response = updateClient(ClientNative.builder()
+                            .CID(scanner.nextLine())
+                            .name(name)
+                            .zipCode(zipCode)
+                            .build());
                     if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -67,7 +76,8 @@ public class AdminPortalClient {
                 }
                 case REMOVER_CLIENTE -> {
                     System.out.print("Escreva o ID do cliente: ");
-                    AdminPortalReply response = removeClient(scanner.nextLine());
+
+                    ReplyNative response = removeClient(scanner.nextLine());
                     if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -85,8 +95,9 @@ public class AdminPortalClient {
                         double price = Double.parseDouble(scanner.nextLine());
                         System.out.print("Escreva a quantidade do produto");
                         int quantity = Integer.parseInt(scanner.nextLine());
-                        AdminPortalReply response = createProduct(ProductNative.builder()
-                                .productId(productId)
+
+                        ReplyNative response = createProduct(ProductNative.builder()
+                                .PID(productId)
                                 .name(name)
                                 .description(description)
                                 .price(price)
@@ -120,8 +131,9 @@ public class AdminPortalClient {
                         double price = Double.parseDouble(scanner.nextLine());
                         System.out.print("Escreva a quantidade do produto");
                         int quantity = Integer.parseInt(scanner.nextLine());
-                        AdminPortalReply response = updateProduct(ProductNative.builder()
-                                .productId(targetProductId)
+
+                        ReplyNative response = updateProduct(ProductNative.builder()
+                                .PID(targetProductId)
                                 .name(name)
                                 .description(description)
                                 .price(price)
@@ -137,7 +149,8 @@ public class AdminPortalClient {
                 }
                 case REMOVER_PRODUTO -> {
                     System.out.print("Escreva o ID do produto: ");
-                    AdminPortalReply response = removeProduct(scanner.nextLine());
+
+                    ReplyNative response = removeProduct(scanner.nextLine());
                     if (response.getError() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
@@ -156,14 +169,14 @@ public class AdminPortalClient {
         }
     }
 
-    static private AdminPortalReply createClient(ClientNative clientNative) {
+    static private ReplyNative createClient(ClientNative clientNative) {
         if (!true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que inclui um cliente no banco de dados e na cache
-            System.out.println("Inseriu um ID " + clientNative.getClientId());
-            return AdminPortalReply.SUCESSO;
+            System.out.println("Inseriu um ID " + clientNative.getCID());
+            return ReplyNative.SUCESSO;
         }
 
-        return AdminPortalReply.DUPLICATA;
+        return ReplyNative.DUPLICATA;
     }
 
     static private Optional<ClientNative> retrieveClient(String clientId) {
@@ -175,32 +188,32 @@ public class AdminPortalClient {
         return optClient;
     }
 
-    static private AdminPortalReply updateClient(ClientNative clientNative) {
+    static private ReplyNative updateClient(ClientNative clientNative) {
         if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que atualiza o cliente no banco e na cache
-            System.out.println("Atualizou um ID " + clientNative.getClientId());
-            return AdminPortalReply.SUCESSO;
+            System.out.println("Atualizou um ID " + clientNative.getCID());
+            return ReplyNative.SUCESSO;
         }
 
-        return AdminPortalReply.INEXISTENTE;
+        return ReplyNative.INEXISTENTE;
     }
 
-    static private AdminPortalReply removeClient(String clientId) {
+    static private ReplyNative removeClient(String clientId) {
         if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que remove o cliente do banco e da cache (se estiver la)
             System.out.println("Removeu um ID " + clientId);
-            return AdminPortalReply.SUCESSO;
+            return ReplyNative.SUCESSO;
         }
-        return AdminPortalReply.INEXISTENTE;
+        return ReplyNative.INEXISTENTE;
     }
 
-    static private AdminPortalReply createProduct(ProductNative productNative) {
+    static private ReplyNative createProduct(ProductNative productNative) {
         if (!true) {
-            System.out.println("Criou produto " + productNative.getProductId());
-            return AdminPortalReply.SUCESSO;
+            System.out.println("Criou produto " + productNative.getPID());
+            return ReplyNative.SUCESSO;
         }
 
-        return AdminPortalReply.DUPLICATA;
+        return ReplyNative.DUPLICATA;
     }
 
     static private Optional<ProductNative> retrieveProduct(String productId) {
@@ -210,21 +223,21 @@ public class AdminPortalClient {
         return optionalProduct;
     }
 
-    static private AdminPortalReply updateProduct(ProductNative productNative) {
+    static private ReplyNative updateProduct(ProductNative productNative) {
         if (!true) {
-            System.out.println("Atualizou produto " + productNative.getProductId());
-            return AdminPortalReply.SUCESSO;
+            System.out.println("Atualizou produto " + productNative.getPID());
+            return ReplyNative.SUCESSO;
         }
 
-        return AdminPortalReply.DUPLICATA;
+        return ReplyNative.DUPLICATA;
     }
 
-    static private AdminPortalReply removeProduct(String productId) {
+    static private ReplyNative removeProduct(String productId) {
         if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
             //incluir operacao que remove o cliente do banco e da cache (se estiver la)
             System.out.println("Removeu um ID " + productId);
-            return AdminPortalReply.SUCESSO;
+            return ReplyNative.SUCESSO;
         }
-        return AdminPortalReply.INEXISTENTE;
+        return ReplyNative.INEXISTENTE;
     }
 }

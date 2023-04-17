@@ -1,22 +1,22 @@
 package ufu.davigabriel.exceptions;
 
 import io.grpc.stub.StreamObserver;
-import ufu.davigabriel.client.AdminPortalReply;
+import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.server.Reply;
 
-public abstract class DatabaseException extends Exception{
+public abstract class DatabaseException extends Exception {
     public void replyError(StreamObserver responseObserver) {
-        this.replyError(responseObserver, AdminPortalReply.ERRO_DESCONHECIDO);
+        this.replyError(responseObserver, ReplyNative.ERRO_DESCONHECIDO);
     }
 
-    public Reply getErrorReply(AdminPortalReply adminPortalReply) {
+    public Reply getErrorReply(ReplyNative replyNative) {
         return Reply.newBuilder()
-                .setError(adminPortalReply.getError())
-                .setDescription(adminPortalReply.getDescription())
+                .setError(replyNative.getError())
+                .setDescription(replyNative.getDescription())
                 .build();
     }
 
-    public void replyError(StreamObserver responseObserver, AdminPortalReply adminPortalReply) {
-        responseObserver.onNext(getErrorReply(adminPortalReply));
+    public void replyError(StreamObserver responseObserver, ReplyNative replyNative) {
+        responseObserver.onNext(getErrorReply(replyNative));
     }
 }
