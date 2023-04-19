@@ -8,7 +8,7 @@ public class RandomUtils {
         return ClientNative.builder()
                 .name(RandomString.make(16))
                 .zipCode(RandomString.make(8))
-                .clientId(RandomString.make(32))
+                .CID(RandomString.make(32))
                 .build();
     }
 }

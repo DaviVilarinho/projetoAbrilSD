@@ -7,13 +7,15 @@ import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.server.Client;
 import ufu.davigabriel.server.ID;
+import ufu.davigabriel.server.Order;
 import ufu.davigabriel.server.Product;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class MosquittoUpdaterMiddleware implements IProxyDatabase {
-    private static final MosquittoUpdaterMiddleware instance = new MosquittoUpdaterMiddleware();
+    private static MosquittoUpdaterMiddleware instance;
     final private boolean SHOULD_CONNECT_ONLINE = false;
     final private String RANDOM_ID = Integer.valueOf(new Random().nextInt(100000000)).toString();
     final private String CLIENT_ID = SHOULD_CONNECT_ONLINE ? "publisher-davi-vilarinho-gabriel-amaral-gbc074" : RANDOM_ID;
@@ -22,7 +24,7 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
     private int QOS = 2;
     private MqttClient mqttClient;
 
-    private MosquittoUpdaterMiddleware() {
+    private MosquittoUpdaterMiddleware(MosquittoPortalContext mosquittoContext) {
         try {
             String BROKER = SHOULD_CONNECT_ONLINE ? "tcp://broker.hivemq.com:1883" : "tcp://localhost:1883";
             this.mqttClient = new MqttClient(BROKER, CLIENT_ID, PERSISTENCE);
@@ -34,8 +36,7 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
             this.mqttClient.setCallback(new MosquittoTopicCallback());
             this.mqttClient.connect();
             System.out.println("Conectado com sucesso");
-            Object[] topicsObjectsArray = Arrays.stream(MosquittoTopics.values()).map(MosquittoTopics::name).toArray();
-            this.mqttClient.subscribe(Arrays.copyOf(topicsObjectsArray, topicsObjectsArray.length, String[].class));
+            this.mqttClient.subscribe(getInterestedTopics(mosquittoContext));
             System.out.println("Subscrito...");
         } catch (MqttException me) {
             System.out.println("Nao foi possivel inicializar o client MQTT, encerrando");
@@ -46,10 +47,38 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
             System.out.println("exception: " + me);
             me.printStackTrace();
             System.exit(-1);
+        } catch (EnumConstantNotPresentException enumConstantNotPresentException) {
+            System.out.println("Contexto inexistente...");
+            System.exit(-1);
         }
+    }
+    
+    private Array<String> getInterestedTopics(MosquittoPortalContext mosquittoPortalContext)  {
+        Object[] objectTopicsToSubscribe;
+        if (MosquittoPortalContext.admin.equals(mosquittoPortalContext)) {
+            objectTopicsToSubscribe = Arrays.stream(MosquittoTopics.values())
+                    .map(MosquittoTopics::name)
+                    .filter(name -> name.startsWith("CLIENT") || name.startsWith("PRODUCT")
+                    .toArray();
+        } else (MosquittoPortalContext.order.equals(mosquittoPortalContext)) {
+            objectTopicsToSubscribe = Arrays.stream(MosquittoTopics.values())
+                    .map(MosquittoTopics::name)
+                    .filter(name -> name.startsWith("ORDER"))
+                    .toArray();
+        } else {
+            throw new EnumConstantNotPresentException("Valor nao esperado de contexto");
+        }
+        return Arrays.copyOf(objectTopicsToSubscribe, objectTopicsToSubscribe.length, String[].class);
     }
 
     public static MosquittoUpdaterMiddleware getInstance() {
+        return instance;
+    }
+
+    public static MosquittoUpdaterMiddleware assignServer(MosquittoPortalContext mosquittoGeneralTopics) {
+        if (instance == null) {
+            instance = new MosquittoUpdaterMiddleware(mosquittoGeneralTopics);
+        }
         return instance;
     }
 
@@ -67,6 +96,14 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
 
     public void publishProductDeletion(ID id) throws MqttException {
         mqttClient.publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
+    }
+
+    public void publishOrderChange(Order order, MosquittoTopics mosquittoTopics) throws MqttException {
+        mqttClient.publish(mosquittoTopics.name(), new MqttMessage(order.toByteArray()));
+    }
+
+    public void publishOrderDeletion(ID id) throws MqttException {
+        mqttClient.publish(MosquittoTopics.ORDER_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
 
     public void disconnect() {
@@ -87,27 +124,58 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
     }
 
     @Override
-    public void updateClient(Client client) throws NotFoundItemInDatabaseException {
-
+    public void updateClient(Client client) throws NotFoundItemInDatabaseException, MqttException {
+        if (!databaseService.hasClient(client.getCID()))
+            throw new NotFoundItemInDatabaseException();
+        publishClientChange(client, MosquittoTopics.CLIENT_UPDATE_TOPIC);
     }
 
     @Override
-    public void deleteClient(ID id) throws NotFoundItemInDatabaseException {
-
+    public void deleteClient(ID id) throws NotFoundItemInDatabaseException, MqttException {
+        if (!databaseService.hasClient(id.getID()))
+            throw new NotFoundItemInDatabaseException();
+        publishClientDeletion(id);
     }
 
     @Override
-    public void createProduct(Product product) throws DuplicateDatabaseItemException {
-
+    public void createProduct(Product product) throws DuplicateDatabaseItemException, MqttException {
+        if (databaseService.hasProduct(product.getPID()))
+            throw new DuplicateDatabaseItemException();
+        publishProductChange(product, MosquittoTopics.PRODUCT_CREATION_TOPIC);
     }
 
     @Override
-    public void updateProduct(Product Product) throws NotFoundItemInDatabaseException {
-
+    public void updateProduct(Product product) throws NotFoundItemInDatabaseException, MqttException {
+        if (!databaseService.hasProduct(product.getPID()))
+            throw new NotFoundItemInDatabaseException();
+        publishProductChange(product, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
     }
 
     @Override
-    public void deleteProduct(ID id) throws NotFoundItemInDatabaseException {
+    public void deleteProduct(ID id) throws NotFoundItemInDatabaseException, MqttException {
+        if (!databaseService.hasProduct(id.getID()))
+            throw new NotFoundItemInDatabaseException();
+        publishProductDeletion(id);
+    }
 
+    @Override
+    public void createOrder(Order order) throws DuplicateDatabaseItemException, MqttException {
+        if (databaseService.hasOrder(order.getOID()))
+            throw new DuplicateDatabaseItemException();
+        publishOrderChange(order, MosquittoTopics.ORDER_CREATION_TOPIC);
+    }
+
+    @Override
+    public void updateOrder(Order order) throws NotFoundItemInDatabaseException, MqttException {
+        if (!databaseService.hasOrder(order.getOID()))
+            throw new NotFoundItemInDatabaseException();
+        publishOrderChange(order, MosquittoTopics.ORDER_UPDATE_TOPIC);
+    }
+
+    @Override
+    public void deleteOrder(ID id) throws NotFoundItemInDatabaseException, MqttException {
+        if (!databaseService.hasOrder(id.getID()))
+            throw new NotFoundItemInDatabaseException();
+        publishOrderDeletion(id);
     }
 }

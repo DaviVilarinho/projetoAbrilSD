@@ -9,6 +9,7 @@ import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.services.DatabaseService;
+import ufu.davigabriel.services.MosquittoPortalContext;
 import ufu.davigabriel.services.MosquittoTopics;
 import ufu.davigabriel.services.MosquittoUpdaterMiddleware;
 
@@ -64,7 +65,7 @@ public class AdminPortalServer {
 
     static public class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
         private DatabaseService databaseService = DatabaseService.getInstance();
-        private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.getInstance();
+        private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.assignServer(MosquittoPortalContext.admin);
 
         @Override
         public void createClient(Client request, StreamObserver<Reply> responseObserver) {

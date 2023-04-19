@@ -4,10 +4,13 @@ import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.services.DatabaseService;
+import ufu.davigabriel.services.MosquittoPortalContext;
+import ufu.davigabriel.services.MosquittoUpdaterMiddleware;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -63,17 +66,23 @@ public class OrderPortalServer {
     static public class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {
 
         private DatabaseService databaseService = DatabaseService.getInstance();
+        private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.assignServer(MosquittoPortalContext.order);
 
         @Override
         public void createOrder(Order request, StreamObserver<Reply> responseObserver) {
             try {
-                databaseService.createOrder(request);
+                mosquittoUpdaterMiddleware.createOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
                 exception.replyError(responseObserver);
+            } catch (MqttException e) {
+                responseObserver.onNext(Reply.newBuilder()
+                        .setError(-10)
+                        .setDescription("Erro MQTT")
+                        .build());
             } finally {
                 responseObserver.onCompleted();
             }
@@ -93,13 +102,18 @@ public class OrderPortalServer {
         @Override
         public void updateOrder(Order request, StreamObserver<Reply> responseObserver) {
             try {
-                databaseService.updateOrder(request);
+                mosquittoUpdaterMiddleware.updateOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
+            } catch (MqttException e) {
+                responseObserver.onNext(Reply.newBuilder()
+                        .setError(-10)
+                        .setDescription("Erro MQTT")
+                        .build());
             } finally {
                 responseObserver.onCompleted();
             }
@@ -108,13 +122,18 @@ public class OrderPortalServer {
         @Override
         public void deleteOrder(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                databaseService.deleteProduct(request);
+                mosquittoUpdaterMiddleware.deleteOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
+            } catch (MqttException e) {
+                responseObserver.onNext(Reply.newBuilder()
+                        .setError(-10)
+                        .setDescription("Erro MQTT")
+                        .build());
             } finally {
                 responseObserver.onCompleted();
             }
