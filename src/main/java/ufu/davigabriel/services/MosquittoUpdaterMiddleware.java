@@ -53,20 +53,20 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
         }
     }
     
-    private Array<String> getInterestedTopics(MosquittoPortalContext mosquittoPortalContext)  {
+    private String[] getInterestedTopics(MosquittoPortalContext mosquittoPortalContext)  {
         Object[] objectTopicsToSubscribe;
         if (MosquittoPortalContext.admin.equals(mosquittoPortalContext)) {
             objectTopicsToSubscribe = Arrays.stream(MosquittoTopics.values())
                     .map(MosquittoTopics::name)
-                    .filter(name -> name.startsWith("CLIENT") || name.startsWith("PRODUCT")
+                    .filter(name -> name.startsWith("CLIENT") || name.startsWith("PRODUCT"))
                     .toArray();
-        } else (MosquittoPortalContext.order.equals(mosquittoPortalContext)) {
+        } else if(MosquittoPortalContext.order.equals(mosquittoPortalContext)) {
             objectTopicsToSubscribe = Arrays.stream(MosquittoTopics.values())
                     .map(MosquittoTopics::name)
                     .filter(name -> name.startsWith("ORDER"))
                     .toArray();
         } else {
-            throw new EnumConstantNotPresentException("Valor nao esperado de contexto");
+            throw new EnumConstantNotPresentException(MosquittoPortalContext.class, "Valor nao esperado de contexto");
         }
         return Arrays.copyOf(objectTopicsToSubscribe, objectTopicsToSubscribe.length, String[].class);
     }

@@ -26,4 +26,13 @@ public class ClientNative {
     public static ClientNative fromClient(Client client) {
         return new Gson().fromJson(client.getData(), ClientNative.class);
     }
+
+
+    public static ClientNative generateEmptyClientNative(){
+        return ClientNative.builder()
+                .CID("0")
+                .name("")
+                .zipCode("")
+                .build();
+    }
 }

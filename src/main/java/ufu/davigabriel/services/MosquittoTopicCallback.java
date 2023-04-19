@@ -12,7 +12,7 @@ public class MosquittoTopicCallback implements MqttCallback {
 
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
-        System.out.println(topic + message.toString());
+        System.out.println("Mensagem recebida de: "+topic + message.toString());
         MosquittoTopics.valueOf(topic).getIMqttMessageListener().accept(topic, message);
     }
 

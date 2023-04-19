@@ -28,6 +28,16 @@ public class ProductNative {
     public static ProductNative fromProduct(Product product) {
         return new Gson().fromJson(product.getData(), ProductNative.class);
     }
+
+    public static ProductNative generateEmptyProductNative(){
+        return ProductNative.builder()
+                .PID("0")
+                .name("")
+                .quantity(-1)
+                .price(-1)
+                .description("")
+                .build();
+    }
 }
 
 

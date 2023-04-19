@@ -18,7 +18,6 @@ import java.util.function.BiConsumer;
 public enum MosquittoTopics {
     CLIENT_CREATION_TOPIC("admin/client/creation", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         Client client = new Gson().fromJson(message.toString(), Client.class);
         try {
             databaseService.createClient(client);
@@ -27,7 +26,6 @@ public enum MosquittoTopics {
         }
     }), CLIENT_UPDATE_TOPIC("admin/client/update", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         Client client = new Gson().fromJson(message.toString(), Client.class);
         try {
             databaseService.updateClient(client);
@@ -36,8 +34,7 @@ public enum MosquittoTopics {
         }
     }), CLIENT_DELETION_TOPIC("admin/client/deletion", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
-        ID clientId = new Gson().fromJson(message.toString(), ID.class);
+        ID clientId = ID.newBuilder().setID(message.toString().strip().trim()).build();
         try {
             databaseService.deleteClient(clientId);
         } catch (NotFoundItemInDatabaseException e) {
@@ -45,7 +42,6 @@ public enum MosquittoTopics {
         }
     }), PRODUCT_CREATION_TOPIC("admin/product/creation", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         Product product = new Gson().fromJson(message.toString(), Product.class);
         try {
             databaseService.createProduct(product);
@@ -54,7 +50,6 @@ public enum MosquittoTopics {
         }
     }), PRODUCT_UPDATE_TOPIC("admin/product/update", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         Product product = new Gson().fromJson(message.toString(), Product.class);
         try {
             databaseService.updateProduct(product);
@@ -63,7 +58,6 @@ public enum MosquittoTopics {
         }
     }), PRODUCT_DELETION_TOPIC("admin/product/deletion", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         ID productId = new Gson().fromJson(message.toString(), ID.class);
         try {
             databaseService.deleteProduct(productId);
@@ -72,7 +66,6 @@ public enum MosquittoTopics {
         }
     }), ORDER_CREATION_TOPIC("order/creation", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         Order order = new Gson().fromJson(message.toString(), Order.class);
         try {
             databaseService.createOrder(order);
@@ -81,7 +74,6 @@ public enum MosquittoTopics {
         }
     }), ORDER_UPDATE_TOPIC("order/update", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         Order order = new Gson().fromJson(message.toString(), Order.class);
         try {
             databaseService.updateOrder(order);
@@ -90,7 +82,6 @@ public enum MosquittoTopics {
         }
     }), ORDER_DELETION_TOPIC("order/deletion", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        System.out.println("Mensagem recebida de " + topic + ": " + message.toString());
         ID orderId = new Gson().fromJson(message.toString(), ID.class);
         try {
             databaseService.deleteOrder(orderId);
@@ -99,8 +90,8 @@ public enum MosquittoTopics {
         }
     });
 
-    private String topic;
-    private BiConsumer<String, MqttMessage> iMqttMessageListener;
+    private final String topic;
+    private final BiConsumer<String, MqttMessage> iMqttMessageListener;
 
     MosquittoTopics(String topic, BiConsumer<String, MqttMessage> iMqttMessageListener) {
         this.topic = topic;
