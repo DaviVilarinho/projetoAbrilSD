@@ -11,11 +11,11 @@ public enum ReplyNative {
     INEXISTENTE(404, "Item nao existe."),
     ERRO_DESCONHECIDO(502, "Falha interna.");
 
-    private final int error;
+    private final int code;
     private final String description;
 
-    private ReplyNative(int error, String description){
-        this.error = error;
+    private ReplyNative(int code, String description){
+        this.code = code;
         this.description = description;
     }
 }

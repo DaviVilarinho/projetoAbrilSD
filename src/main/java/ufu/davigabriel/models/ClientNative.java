@@ -9,7 +9,7 @@ import ufu.davigabriel.server.Client;
 
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @ToString
 public class ClientNative {
     private String CID;

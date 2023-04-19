@@ -11,6 +11,9 @@ import ufu.davigabriel.server.*;
 import utils.RandomUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 public class AdminPortalServerTest {
     @Rule
@@ -47,14 +50,62 @@ public class AdminPortalServerTest {
         ClientNative clientNativeThatShouldBeUpdated = ClientNative.fromClient(clientThatShouldBeCreated);
         clientNativeThatShouldBeUpdated.setZipCode("326432");
         reply = blockingStub.updateClient(clientNativeThatShouldBeUpdated.toClient());
-        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
         client = blockingStub.retrieveClient(ID.newBuilder().setID(clientNativeThatShouldBeUpdated.getCID()).build());
         Assert.assertEquals(clientNativeThatShouldBeUpdated.toClient(), client);
 
         reply = blockingStub.deleteClient(ID.newBuilder().setID(clientNativeThatShouldBeUpdated.getCID()).build());
-        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
         client = blockingStub.retrieveClient(ID.newBuilder().setID(clientNativeThatShouldBeUpdated.getCID()).build());
         Assert.assertNotEquals(clientNativeThatShouldBeUpdated.toClient(), client);
     }
 
+    @Test
+    public void shouldCrudClientMultipleServer() throws InterruptedException {
+        List<String> serverNames = IntStream.range(0, 6).mapToObj(i -> InProcessServerBuilder.generateName()).toList();
+        List<AdminPortalGrpc.AdminPortalBlockingStub> adminPortalBlockingStubs = new ArrayList<>();
+        serverNames.forEach(serverName -> {
+            try {
+                grpcCleanup.register(InProcessServerBuilder
+                        .forName(serverName).directExecutor().addService(new AdminPortalServer.AdminPortalImpl()).build().start());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            adminPortalBlockingStubs.add(
+                    AdminPortalGrpc.newBlockingStub(
+                            grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()))
+            );
+        });
+
+        Client clientThatShouldBeCreated = RandomUtils.generateRandomClient().toClient();
+        Client clientThatShouldNotBeCreated = RandomUtils.generateRandomClient().toClient();
+
+        Reply reply = adminPortalBlockingStubs.get(0).createClient(clientThatShouldBeCreated);
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
+        Thread.sleep(500);
+        adminPortalBlockingStubs.forEach(blockingStub -> {
+            Client client = blockingStub.retrieveClient(ID.newBuilder().setID(clientThatShouldBeCreated.getCID()).build());
+            Assert.assertEquals(clientThatShouldBeCreated, client);
+        });
+        ClientNative anotherClientNativeThatShouldBeCreated = RandomUtils.generateRandomClient();
+        Client anotherClientThatShouldBeCreated = anotherClientNativeThatShouldBeCreated.toClient();
+        reply = adminPortalBlockingStubs.get(0).createClient(anotherClientThatShouldBeCreated);
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
+        Thread.sleep(500);
+        adminPortalBlockingStubs.forEach(blockingStub -> {
+            Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeCreated.getCID()).build());
+            Assert.assertEquals(anotherClientThatShouldBeCreated, client);
+        });
+        Client anotherClientThatShouldBeUpdated = anotherClientNativeThatShouldBeCreated.toBuilder()
+                .zipCode("zipMUDADO1222")
+                .build()
+                .toClient();
+        reply = adminPortalBlockingStubs.get(0).updateClient(anotherClientThatShouldBeUpdated);
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
+        Thread.sleep(500);
+        adminPortalBlockingStubs.forEach(blockingStub -> {
+            Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeUpdated.getCID()).build());
+            Assert.assertEquals(anotherClientThatShouldBeUpdated, client);
+        });
+    }
 }

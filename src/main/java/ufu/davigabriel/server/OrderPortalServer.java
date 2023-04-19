@@ -73,7 +73,7 @@ public class OrderPortalServer {
             try {
                 mosquittoUpdaterMiddleware.createOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
@@ -104,7 +104,7 @@ public class OrderPortalServer {
             try {
                 mosquittoUpdaterMiddleware.updateOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
@@ -124,7 +124,7 @@ public class OrderPortalServer {
             try {
                 mosquittoUpdaterMiddleware.deleteOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {

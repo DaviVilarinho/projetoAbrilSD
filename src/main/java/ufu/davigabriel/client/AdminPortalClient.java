@@ -44,7 +44,7 @@ public class AdminPortalClient {
                             .name(name)
                             .zipCode(zipCode)
                             .build());
-                    if (response.getError() != 0)
+                    if (response.getCode() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("CLIENTE INSERIDO");
@@ -69,7 +69,7 @@ public class AdminPortalClient {
                             .name(name)
                             .zipCode(zipCode)
                             .build());
-                    if (response.getError() != 0)
+                    if (response.getCode() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("CLIENTE ALTERADO");
@@ -78,7 +78,7 @@ public class AdminPortalClient {
                     System.out.print("Escreva o ID do cliente: ");
 
                     ReplyNative response = removeClient(scanner.nextLine());
-                    if (response.getError() != 0)
+                    if (response.getCode() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("CLIENTE REMOVIDO");
@@ -103,7 +103,7 @@ public class AdminPortalClient {
                                 .price(price)
                                 .quantity(quantity)
                                 .build());
-                        if (response.getError() != 0)
+                        if (response.getCode() != 0)
                             System.out.println("ERRO: " + response.getDescription());
                         else
                             System.out.println("CLIENTE INSERIDO");
@@ -139,7 +139,7 @@ public class AdminPortalClient {
                                 .price(price)
                                 .quantity(quantity)
                                 .build());
-                        if (response.getError() != 0)
+                        if (response.getCode() != 0)
                             System.out.println("ERRO: " + response.getDescription());
                         else
                             System.out.println("PRODUTO ATUALIZADO");
@@ -151,7 +151,7 @@ public class AdminPortalClient {
                     System.out.print("Escreva o ID do produto: ");
 
                     ReplyNative response = removeProduct(scanner.nextLine());
-                    if (response.getError() != 0)
+                    if (response.getCode() != 0)
                         System.out.println("ERRO: " + response.getDescription());
                     else
                         System.out.println("PRODUTO REMOVIDO");

@@ -74,7 +74,7 @@ public class AdminPortalServer {
             try {
                 mosquittoUpdaterMiddleware.createClient(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
@@ -105,7 +105,7 @@ public class AdminPortalServer {
             try {
                 mosquittoUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
@@ -123,7 +123,7 @@ public class AdminPortalServer {
             try {
                 mosquittoUpdaterMiddleware.publishClientDeletion(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
@@ -141,7 +141,7 @@ public class AdminPortalServer {
             try {
                 mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_CREATION_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
@@ -170,7 +170,7 @@ public class AdminPortalServer {
             try {
                 mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
@@ -188,7 +188,7 @@ public class AdminPortalServer {
             try {
                 mosquittoUpdaterMiddleware.publishProductDeletion(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getError())
+                        .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
