@@ -4,7 +4,6 @@ import io.grpc.testing.GrpcCleanupRule;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
@@ -12,7 +11,6 @@ import ufu.davigabriel.server.*;
 import utils.RandomUtils;
 
 import java.io.IOException;
-import java.io.PipedReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -93,12 +91,12 @@ public class AdminPortalServerTest {
         ProductNative productNativeThatShouldBeUpdated = ProductNative.fromProduct(productThatShouldBeCreated);
         productNativeThatShouldBeUpdated.setDescription("dkjshabuipokejxm");
         reply = blockingStub.updateProduct(productNativeThatShouldBeUpdated.toProduct());
-        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
         product = blockingStub.retrieveProduct(ID.newBuilder().setID(productNativeThatShouldBeUpdated.getPID()).build());
         Assert.assertEquals(productNativeThatShouldBeUpdated.toProduct(), product);
 
         reply = blockingStub.deleteProduct(ID.newBuilder().setID(productNativeThatShouldBeUpdated.getPID()).build());
-        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
         product = blockingStub.retrieveProduct(ID.newBuilder().setID(productNativeThatShouldBeUpdated.getPID()).build());
         Assert.assertNotEquals(productNativeThatShouldBeUpdated.toProduct(), product);
     }
