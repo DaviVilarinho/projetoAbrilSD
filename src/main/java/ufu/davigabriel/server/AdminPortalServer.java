@@ -10,10 +10,9 @@ import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.services.DatabaseService;
-import ufu.davigabriel.services.MosquittoPortalContext;
+import ufu.davigabriel.services.AdminDatabaseService;
 import ufu.davigabriel.services.MosquittoTopics;
-import ufu.davigabriel.services.MosquittoUpdaterMiddleware;
+import ufu.davigabriel.services.MosquittoAdminUpdaterMiddleware;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -66,13 +65,13 @@ public class AdminPortalServer {
     }
 
     static public class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
-        private DatabaseService databaseService = DatabaseService.getInstance();
-        private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.assignServer(MosquittoPortalContext.admin);
+        private AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
+        private MosquittoAdminUpdaterMiddleware mosquittoAdminUpdaterMiddleware = MosquittoAdminUpdaterMiddleware.getInstance();
 
         @Override
         public void createClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.createClient(request);
+                mosquittoAdminUpdaterMiddleware.createClient(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -92,7 +91,7 @@ public class AdminPortalServer {
         @Override
         public void retrieveClient(ID request, StreamObserver<Client> responseObserver) {
             try {
-                responseObserver.onNext(databaseService.retrieveClient(request).toClient());
+                responseObserver.onNext(adminDatabaseService.retrieveClient(request).toClient());
             } catch (NotFoundItemInDatabaseException exception) {
                 responseObserver.onNext(ClientNative.generateEmptyClientNative().toClient());
             } finally {
@@ -103,7 +102,7 @@ public class AdminPortalServer {
         @Override
         public void updateClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
+                mosquittoAdminUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -121,7 +120,7 @@ public class AdminPortalServer {
         @Override
         public void deleteClient(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.publishClientDeletion(request);
+                mosquittoAdminUpdaterMiddleware.publishClientDeletion(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -139,7 +138,7 @@ public class AdminPortalServer {
         @Override
         public void createProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_CREATION_TOPIC);
+                mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_CREATION_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -157,7 +156,7 @@ public class AdminPortalServer {
         @Override
         public void retrieveProduct(ID request, StreamObserver<Product> responseObserver) {
             try {
-                responseObserver.onNext(databaseService.retrieveProduct(request).toProduct());
+                responseObserver.onNext(adminDatabaseService.retrieveProduct(request).toProduct());
             } catch (NotFoundItemInDatabaseException exception) {
                 responseObserver.onNext(ProductNative.generateEmptyProductNative().toProduct());
             } finally {
@@ -168,7 +167,7 @@ public class AdminPortalServer {
         @Override
         public void updateProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
+                mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -186,7 +185,7 @@ public class AdminPortalServer {
         @Override
         public void deleteProduct(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.publishProductDeletion(request);
+                mosquittoAdminUpdaterMiddleware.publishProductDeletion(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())

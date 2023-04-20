@@ -17,74 +17,74 @@ import java.util.function.BiConsumer;
 @ToString
 public enum MosquittoTopics {
     CLIENT_CREATION_TOPIC("admin/client/creation", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
         Client client = new Gson().fromJson(message.toString(), Client.class);
         try {
-            databaseService.createClient(client);
+            adminDatabaseService.createClient(client);
         } catch (DuplicateDatabaseItemException e) {
             throw new RuntimeException(e);
         }
     }), CLIENT_UPDATE_TOPIC("admin/client/update", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
         Client client = new Gson().fromJson(message.toString(), Client.class);
         try {
-            databaseService.updateClient(client);
+            adminDatabaseService.updateClient(client);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
     }), CLIENT_DELETION_TOPIC("admin/client/deletion", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
         ID clientId = ID.newBuilder().setID(message.toString().strip().trim()).build();
         try {
-            databaseService.deleteClient(clientId);
+            adminDatabaseService.deleteClient(clientId);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
     }), PRODUCT_CREATION_TOPIC("admin/product/creation", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
         Product product = new Gson().fromJson(message.toString(), Product.class);
         try {
-            databaseService.createProduct(product);
+            adminDatabaseService.createProduct(product);
         } catch (DuplicateDatabaseItemException e) {
             throw new RuntimeException(e);
         }
     }), PRODUCT_UPDATE_TOPIC("admin/product/update", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
         Product product = new Gson().fromJson(message.toString(), Product.class);
         try {
-            databaseService.updateProduct(product);
+            adminDatabaseService.updateProduct(product);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
     }), PRODUCT_DELETION_TOPIC("admin/product/deletion", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
         ID productId = ID.newBuilder().setID(message.toString().strip().trim()).build();
         try {
-            databaseService.deleteProduct(productId);
+            adminDatabaseService.deleteProduct(productId);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
     }), ORDER_CREATION_TOPIC("order/creation", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        OrderDatabaseService orderDatabaseService = OrderDatabaseService.getInstance();
         Order order = new Gson().fromJson(message.toString(), Order.class);
         try {
-            databaseService.createOrder(order);
+            orderDatabaseService.createOrder(order);
         } catch (DuplicateDatabaseItemException e) {
             throw new RuntimeException(e);
         }
     }), ORDER_UPDATE_TOPIC("order/update", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        OrderDatabaseService orderDatabaseService = OrderDatabaseService.getInstance();
         Order order = new Gson().fromJson(message.toString(), Order.class);
         try {
-            databaseService.updateOrder(order);
+            orderDatabaseService.updateOrder(order);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }
     }), ORDER_DELETION_TOPIC("order/deletion", (topic, message) -> {
-        DatabaseService databaseService = DatabaseService.getInstance();
+        OrderDatabaseService orderDatabaseService = OrderDatabaseService.getInstance();
         ID orderId = new Gson().fromJson(message.toString(), ID.class);
         try {
-            databaseService.deleteOrder(orderId);
+            orderDatabaseService.deleteOrder(orderId);
         } catch (NotFoundItemInDatabaseException e) {
             throw new RuntimeException(e);
         }

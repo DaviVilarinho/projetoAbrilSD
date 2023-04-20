@@ -1,0 +1,93 @@
+package ufu.davigabriel.services;
+
+import com.google.gson.Gson;
+import org.eclipse.paho.client.mqttv3.*;
+import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.server.Client;
+import ufu.davigabriel.server.ID;
+import ufu.davigabriel.server.Product;
+
+import java.util.Arrays;
+import java.util.Random;
+
+public class MosquittoAdminUpdaterMiddleware extends MosquittoUpdaterMiddleware implements IAdminProxyDatabase {
+    private static MosquittoAdminUpdaterMiddleware instance;
+    final private AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
+    
+    public MosquittoAdminUpdaterMiddleware(){
+        super();
+    }
+    
+    public String[] getInterestedTopics()  {
+        Object[] objectTopicsToSubscribe = Arrays.stream(MosquittoTopics.values())
+                .map(MosquittoTopics::name)
+                .filter(name -> name.startsWith("CLIENT") || name.startsWith("PRODUCT"))
+                .toArray();
+        
+        return Arrays.copyOf(objectTopicsToSubscribe, objectTopicsToSubscribe.length, String[].class);
+    }
+
+    public static MosquittoAdminUpdaterMiddleware getInstance() {
+        if (instance == null)
+            instance = new MosquittoAdminUpdaterMiddleware();
+
+        return instance;
+    }
+    public void publishClientChange(Client client, MosquittoTopics mosquittoTopics) throws MqttException {
+        super.getMqttClient().publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(client).getBytes()));
+    }
+
+    public void publishClientDeletion(ID id) throws MqttException {
+        super.getMqttClient().publish(MosquittoTopics.CLIENT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
+    }
+
+    public void publishProductChange(Product product, MosquittoTopics mosquittoTopics) throws MqttException {
+        super.getMqttClient().publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(product).getBytes()));
+    }
+
+    public void publishProductDeletion(ID id) throws MqttException {
+        super.getMqttClient().publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
+    }
+    @Override
+    public void createClient(Client client) throws DuplicateDatabaseItemException, MqttException {
+        if (adminDatabaseService.hasClient(client.getCID()))
+            throw new DuplicateDatabaseItemException();
+        publishClientChange(client, MosquittoTopics.CLIENT_CREATION_TOPIC);
+    }
+
+    @Override
+    public void updateClient(Client client) throws NotFoundItemInDatabaseException, MqttException {
+        if (!adminDatabaseService.hasClient(client.getCID()))
+            throw new NotFoundItemInDatabaseException();
+        publishClientChange(client, MosquittoTopics.CLIENT_UPDATE_TOPIC);
+    }
+
+    @Override
+    public void deleteClient(ID id) throws NotFoundItemInDatabaseException, MqttException {
+        if (!adminDatabaseService.hasClient(id.getID()))
+            throw new NotFoundItemInDatabaseException();
+        publishClientDeletion(id);
+    }
+
+    @Override
+    public void createProduct(Product product) throws DuplicateDatabaseItemException, MqttException {
+        if (adminDatabaseService.hasProduct(product.getPID()))
+            throw new DuplicateDatabaseItemException();
+        publishProductChange(product, MosquittoTopics.PRODUCT_CREATION_TOPIC);
+    }
+
+    @Override
+    public void updateProduct(Product product) throws NotFoundItemInDatabaseException, MqttException {
+        if (!adminDatabaseService.hasProduct(product.getPID()))
+            throw new NotFoundItemInDatabaseException();
+        publishProductChange(product, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
+    }
+
+    @Override
+    public void deleteProduct(ID id) throws NotFoundItemInDatabaseException, MqttException {
+        if (!adminDatabaseService.hasProduct(id.getID()))
+            throw new NotFoundItemInDatabaseException();
+        publishProductDeletion(id);
+    }
+}

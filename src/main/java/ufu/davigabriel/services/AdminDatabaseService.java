@@ -14,23 +14,21 @@ import ufu.davigabriel.server.Product;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class DatabaseService implements IProxyDatabase {
-    private static DatabaseService instance;
+public class AdminDatabaseService implements IAdminProxyDatabase {
+    private static AdminDatabaseService instance;
     private HashMap<String, ProductNative> productsMap;
     private HashMap<String, ClientNative> clientsMap;
-    private HashMap<String, OrderNative> ordersMap;
 
-    private DatabaseService() {
+    private AdminDatabaseService() {
         if (instance == null) {
             productsMap = new HashMap<>();
             clientsMap = new HashMap<>();
-            ordersMap = new HashMap<>();
         }
     }
 
-    public static DatabaseService getInstance() {
+    public static AdminDatabaseService getInstance() {
         if (instance == null) {
-            instance = new DatabaseService();
+            instance = new AdminDatabaseService();
         }
         return instance;
     }
@@ -38,7 +36,6 @@ public class DatabaseService implements IProxyDatabase {
     public void listAll() {
         productsMap.forEach((s, productNative) -> System.out.println(productNative));
         clientsMap.forEach((s, client) -> System.out.println(client));
-        ordersMap.forEach((s, orderNative) -> System.out.println(orderNative));
     }
 
     public void createClient(Client client) throws DuplicateDatabaseItemException {
@@ -120,55 +117,4 @@ public class DatabaseService implements IProxyDatabase {
     }
 
     public boolean hasProduct(String id) { return productsMap.containsKey(id); }
-
-    public void createOrder(OrderNative orderNative) throws DuplicateDatabaseItemException {
-        if (hasOrder(orderNative.getOID())) throw new DuplicateDatabaseItemException();
-        ordersMap.put(orderNative.getOID(), orderNative);
-    }
-
-    public void createOrder(Order order) throws DuplicateDatabaseItemException {
-        createOrder(OrderNative.fromOrder(order));
-    }
-
-    public OrderNative retrieveOrder(String id) throws NotFoundItemInDatabaseException {
-        if (!hasOrder(id)) throw new NotFoundItemInDatabaseException();
-        return ordersMap.get(id);
-    }
-
-    public OrderNative retrieveOrder(ID id) throws NotFoundItemInDatabaseException {
-        return retrieveOrder(id.getID());
-    }
-
-    public void updateOrder(OrderNative orderNative) throws NotFoundItemInDatabaseException {
-        if(!hasOrder(orderNative.getOID())) throw new NotFoundItemInDatabaseException();
-        ordersMap.put(orderNative.getOID(), orderNative);
-    }
-
-    public void updateOrder(Order order) throws NotFoundItemInDatabaseException {
-        updateOrder(OrderNative.fromOrder(order));
-    }
-
-    public void deleteOrder(String id) throws NotFoundItemInDatabaseException {
-        if(!hasOrder(id)) throw new NotFoundItemInDatabaseException();
-        ordersMap.remove(id);
-    }
-
-    public void deleteOrder(ID id) throws NotFoundItemInDatabaseException {
-        deleteOrder(id.getID());
-    }
-
-    public ArrayList<OrderNative> retrieveClientOrders(ID id) throws NotFoundItemInDatabaseException {
-        if (!hasClient(id.getID())) throw new NotFoundItemInDatabaseException();
-
-        ArrayList<OrderNative> arrayList = new ArrayList<>();
-        ordersMap.forEach((key, order) -> {
-            if(order.getCID().equals(id.getID()))
-                arrayList.add(order);
-        });
-        return arrayList;
-    }
-
-    public boolean hasOrder(String id) {
-        return ordersMap.containsKey(id);
-    }
 }

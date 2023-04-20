@@ -7,18 +7,24 @@ import io.grpc.stub.StreamObserver;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.OrderNative;
 import ufu.davigabriel.models.ReplyNative;
-import ufu.davigabriel.services.DatabaseService;
-import ufu.davigabriel.services.MosquittoPortalContext;
-import ufu.davigabriel.services.MosquittoUpdaterMiddleware;
+import ufu.davigabriel.services.MosquittoOrderUpdaterMiddleware;
+import ufu.davigabriel.services.OrderDatabaseService;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class OrderPortalServer {
     private Server server;
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        final OrderPortalServer server = new OrderPortalServer();
+        server.start();
+        System.out.println("Order Portal running...");
+        server.blockUntilShutdown();
+    }
 
     private void start() throws IOException {
         /* The port on which the server should run */
@@ -57,23 +63,15 @@ public class OrderPortalServer {
         }
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-
-        final OrderPortalServer server = new OrderPortalServer();
-        server.start();
-        System.out.println("Order Portal running...");
-        server.blockUntilShutdown();
-    }
-
     static public class OrderPortalImpl extends OrderPortalGrpc.OrderPortalImplBase {
 
-        private DatabaseService databaseService = DatabaseService.getInstance();
-        private MosquittoUpdaterMiddleware mosquittoUpdaterMiddleware = MosquittoUpdaterMiddleware.assignServer(MosquittoPortalContext.order);
+        private final OrderDatabaseService orderDatabaseService = OrderDatabaseService.getInstance();
+        private final MosquittoOrderUpdaterMiddleware mosquittoOrderUpdaterMiddleware = MosquittoOrderUpdaterMiddleware.getInstance();
 
         @Override
         public void createOrder(Order request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.createOrder(request);
+                mosquittoOrderUpdaterMiddleware.createOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -93,7 +91,7 @@ public class OrderPortalServer {
         @Override
         public void retrieveOrder(ID request, StreamObserver<Order> responseObserver) {
             try {
-                responseObserver.onNext(databaseService.retrieveOrder(request).toOrder());
+                responseObserver.onNext(orderDatabaseService.retrieveOrder(request).toOrder());
             } catch (NotFoundItemInDatabaseException exception) {
                 responseObserver.onNext(OrderNative.generateEmptyOrderNative().toOrder());
             } finally {
@@ -104,7 +102,7 @@ public class OrderPortalServer {
         @Override
         public void updateOrder(Order request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.updateOrder(request);
+                mosquittoOrderUpdaterMiddleware.updateOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -124,7 +122,7 @@ public class OrderPortalServer {
         @Override
         public void deleteOrder(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.deleteOrder(request);
+                mosquittoOrderUpdaterMiddleware.deleteOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getCode())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -140,19 +138,19 @@ public class OrderPortalServer {
                 responseObserver.onCompleted();
             }
         }
-
-        @Override
-        public void retrieveClientOrders(ID request, StreamObserver<Order> responseObserver) {
-            try {
-                databaseService.retrieveClientOrders(request).forEach((order) -> {
-                    responseObserver.onNext(order.toOrder());
-                });
-            } catch (NotFoundItemInDatabaseException exception) {
-                exception.replyError(responseObserver);
-            } finally {
-                responseObserver.onCompleted();
-            }
-        }
+//          TODO
+//        @Override
+//        public void retrieveClientOrders(ID request, StreamObserver<Order> responseObserver) {
+//            try {
+//                orderDatabaseService.retrieveClientOrders(request).forEach((order) -> {
+//                    responseObserver.onNext(order.toOrder());
+//                });
+//            } catch (NotFoundItemInDatabaseException exception) {
+//                exception.replyError(responseObserver);
+//            } finally {
+//                responseObserver.onCompleted();
+//            }
+//        }
     }
 
 }
