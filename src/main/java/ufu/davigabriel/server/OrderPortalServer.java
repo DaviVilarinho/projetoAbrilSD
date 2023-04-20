@@ -7,6 +7,8 @@ import io.grpc.stub.StreamObserver;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.models.ClientNative;
+import ufu.davigabriel.models.OrderNative;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.services.DatabaseService;
 import ufu.davigabriel.services.MosquittoPortalContext;
@@ -93,7 +95,7 @@ public class OrderPortalServer {
             try {
                 responseObserver.onNext(databaseService.retrieveOrder(request).toOrder());
             } catch (NotFoundItemInDatabaseException exception) {
-                exception.replyError(responseObserver);
+                responseObserver.onNext(OrderNative.generateEmptyOrderNative().toOrder());
             } finally {
                 responseObserver.onCompleted();
             }
