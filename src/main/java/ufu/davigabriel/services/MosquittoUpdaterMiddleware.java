@@ -11,7 +11,6 @@ import ufu.davigabriel.server.Order;
 import ufu.davigabriel.server.Product;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 public class MosquittoUpdaterMiddleware implements IProxyDatabase {
@@ -91,7 +90,7 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
     }
 
     public void publishProductChange(Product product, MosquittoTopics mosquittoTopics) throws MqttException {
-        mqttClient.publish(mosquittoTopics.name(), new MqttMessage(product.toByteArray()));
+        mqttClient.publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(product).getBytes()));
     }
 
     public void publishProductDeletion(ID id) throws MqttException {
@@ -99,7 +98,7 @@ public class MosquittoUpdaterMiddleware implements IProxyDatabase {
     }
 
     public void publishOrderChange(Order order, MosquittoTopics mosquittoTopics) throws MqttException {
-        mqttClient.publish(mosquittoTopics.name(), new MqttMessage(order.toByteArray()));
+        mqttClient.publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(order).getBytes()));
     }
 
     public void publishOrderDeletion(ID id) throws MqttException {

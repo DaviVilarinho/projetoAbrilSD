@@ -58,7 +58,7 @@ public enum MosquittoTopics {
         }
     }), PRODUCT_DELETION_TOPIC("admin/product/deletion", (topic, message) -> {
         DatabaseService databaseService = DatabaseService.getInstance();
-        ID productId = new Gson().fromJson(message.toString(), ID.class);
+        ID productId = ID.newBuilder().setID(message.toString().strip().trim()).build();
         try {
             databaseService.deleteProduct(productId);
         } catch (NotFoundItemInDatabaseException e) {

@@ -29,4 +29,11 @@ public class OrderNative {
                 .setData(new Gson().toJson(this))
                 .build();
     }
+
+    public static OrderNative generateEmptyOrderNative(){
+        return OrderNative.builder()
+                .OID("0")
+                .CID("")
+                .build();
+    }
 }

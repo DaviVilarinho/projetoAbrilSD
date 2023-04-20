@@ -168,7 +168,7 @@ public class AdminPortalServer {
         @Override
         public void updateProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
+                mosquittoUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
