@@ -80,8 +80,8 @@ public class OrderPortalServer {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
@@ -111,8 +111,8 @@ public class OrderPortalServer {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
@@ -131,8 +131,8 @@ public class OrderPortalServer {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();

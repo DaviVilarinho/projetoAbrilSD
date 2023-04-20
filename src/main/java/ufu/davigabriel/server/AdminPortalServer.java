@@ -80,8 +80,8 @@ public class AdminPortalServer {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
@@ -109,8 +109,8 @@ public class AdminPortalServer {
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
@@ -127,8 +127,8 @@ public class AdminPortalServer {
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
@@ -145,8 +145,8 @@ public class AdminPortalServer {
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
@@ -174,8 +174,8 @@ public class AdminPortalServer {
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
@@ -192,8 +192,8 @@ public class AdminPortalServer {
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(-10)
-                        .setDescription("Erro MQTT")
+                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
                 responseObserver.onCompleted();
