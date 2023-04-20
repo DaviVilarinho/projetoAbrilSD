@@ -21,6 +21,8 @@ repositories {
     mavenLocal()
 }
 
+mainClassName=mainClassName ?: "ufu.davigabriel.server.AdminPortalServer"
+
 dependencies {
     //Lombok
     compileOnly("org.projectlombok:lombok:1.18.26")
