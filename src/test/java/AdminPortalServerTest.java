@@ -13,6 +13,7 @@ import utils.RandomUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 public class AdminPortalServerTest {
@@ -135,7 +136,7 @@ public class AdminPortalServerTest {
         Thread.sleep(500);
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeCreated.getCID()).build());
-            Assert.assertEquals(anotherClientThatShouldBeCreated, client);
+            Assert.assertEquals(client, anotherClientThatShouldBeCreated);
         });
         Client anotherClientThatShouldBeUpdated = anotherClientNativeThatShouldBeCreated.toBuilder()
                 .zipCode("zipMUDADO1222")
@@ -146,7 +147,17 @@ public class AdminPortalServerTest {
         Thread.sleep(500);
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeUpdated.getCID()).build());
-            Assert.assertEquals(anotherClientThatShouldBeUpdated, client);
+            Assert.assertEquals(client, anotherClientThatShouldBeUpdated);
+        });
+        reply = adminPortalBlockingStubs.get(new Random().nextInt(adminPortalBlockingStubs.size()))
+                .deleteClient(ID.newBuilder()
+                        .setID(anotherClientThatShouldBeUpdated.getCID())
+                        .build());
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getCode());
+        Thread.sleep(500);
+        adminPortalBlockingStubs.forEach(blockingStub -> {
+            Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeUpdated.getCID()).build());
+            Assert.assertEquals(client.getCID(), "0");
         });
     }
 }
