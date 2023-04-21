@@ -21,16 +21,18 @@ public class OrderPortalServer {
     public static int BASE_PORTAL_SERVER_PORT = 60552;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-
+        int port = BASE_PORTAL_SERVER_PORT;
+        if (args.length > 0) {
+            port = BASE_PORTAL_SERVER_PORT + Integer.parseInt(args[0]);
+        }
         final OrderPortalServer server = new OrderPortalServer();
-        server.start();
+        server.start(port);
         System.out.println("Order Portal running...");
         server.blockUntilShutdown();
     }
 
-    private void start() throws IOException {
+    private void start(int port) throws IOException {
         /* The port on which the server should run */
-        int port = 50051;
         server = Grpc.newServerBuilderForPort(port, InsecureServerCredentials.create())
                 .addService(new OrderPortalServer.OrderPortalImpl())
                 .build()

@@ -9,23 +9,33 @@ public class Main {
     private static int PORTAL_SERVERS = 5;
 
     public static void main(String[] args) {
-        List<ProcessBuilder> servers = IntStream.range(0, PORTAL_SERVERS)
+        List<ProcessBuilder> adminPortalServers = IntStream.range(0, PORTAL_SERVERS)
                 .mapToObj(value -> new ProcessBuilder(
                         "./gradlew",
                         "run",
                         "-PmainClass=ufu.davigabriel.server.AdminPortalServer",
                         "--args=\"" + value + "\"")
                 ).toList();
-        servers.forEach(ProcessBuilder::inheritIO);
+        List<ProcessBuilder> orderPortalServers = IntStream.range(0, PORTAL_SERVERS)
+                .mapToObj(value -> new ProcessBuilder(
+                        "./gradlew",
+                        "run",
+                        "-PmainClass=ufu.davigabriel.server.OrderPortalServer",
+                        "--args=\"" + value + "\"")
+                ).toList();
+        List<List<ProcessBuilder>> portalServers = List.of(orderPortalServers, adminPortalServers);
+        portalServers.forEach(portalServer -> portalServer.forEach(ProcessBuilder::inheritIO));
         List<Process> processes = new ArrayList<>();
         try {
-            servers.forEach(server -> {
-                try {
-                    processes.add(server.start());
-                } catch (IOException e) {
-                    System.out.println("Processo falhou " + e.getMessage());
-                }
-            });
+            portalServers.forEach(portalServer ->
+                    portalServer.forEach(server -> {
+                        try {
+                            processes.add(server.start());
+                        } catch (IOException e) {
+                            System.out.println("Processo falhou " + e.getMessage());
+                        }
+                    })
+            );
             processes.forEach(process -> {
                 try {
                     process.waitFor();
