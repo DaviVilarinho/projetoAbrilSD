@@ -15,7 +15,6 @@ import ufu.davigabriel.services.MosquittoTopics;
 import ufu.davigabriel.services.MosquittoAdminUpdaterMiddleware;
 
 import java.io.IOException;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 public class AdminPortalServer {
@@ -23,12 +22,12 @@ public class AdminPortalServer {
     public static int BASE_PORTAL_SERVER_PORT = 25506;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (args.length == 0) {
-            System.out.println("E necessario especificar qual instancia esta e.");
-            System.exit(-1);
+        int port = BASE_PORTAL_SERVER_PORT;
+        if (args.length > 0) {
+            port = BASE_PORTAL_SERVER_PORT + Integer.parseInt(args[0]);
         }
         AdminPortalServer server = new AdminPortalServer();
-        server.start(BASE_PORTAL_SERVER_PORT + Integer.parseInt(args[0]));
+        server.start(port);
         System.out.println("Admin portal running...");
         server.blockUntilShutdown();
     }
@@ -78,14 +77,14 @@ public class AdminPortalServer {
             try {
                 mosquittoAdminUpdaterMiddleware.createClient(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
@@ -109,12 +108,12 @@ public class AdminPortalServer {
             try {
                 mosquittoAdminUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
@@ -127,12 +126,12 @@ public class AdminPortalServer {
             try {
                 mosquittoAdminUpdaterMiddleware.publishClientDeletion(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
@@ -145,12 +144,12 @@ public class AdminPortalServer {
             try {
                 mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_CREATION_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
@@ -174,12 +173,12 @@ public class AdminPortalServer {
             try {
                 mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
@@ -192,12 +191,12 @@ public class AdminPortalServer {
             try {
                 mosquittoAdminUpdaterMiddleware.publishProductDeletion(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {

@@ -2,6 +2,9 @@ package ufu.davigabriel.models;
 
 import lombok.Getter;
 import lombok.ToString;
+import ufu.davigabriel.server.Reply;
+
+import java.util.Arrays;
 
 @Getter
 @ToString
@@ -12,11 +15,18 @@ public enum ReplyNative {
     ERRO_DESCONHECIDO(500, "Falha interna."),
     ERRO_MQTT(502, "Erro no servidor Mosquitto.");
 
-    private final int code;
+    private final int error;
     private final String description;
 
-    ReplyNative(int code, String description) {
-        this.code = code;
+    ReplyNative(int error, String description) {
+        this.error = error;
         this.description = description;
+    }
+
+    static public ReplyNative fromReply(Reply reply) {
+        return Arrays.stream(ReplyNative.values())
+                .filter(replyNative -> replyNative.getError() == reply.getError())
+                .findFirst()
+                .orElse(ERRO_DESCONHECIDO);
     }
 }

@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class OrderPortalServer {
     private Server server;
 
+    public static int BASE_PORTAL_SERVER_PORT = 60552;
+
     public static void main(String[] args) throws IOException, InterruptedException {
 
         final OrderPortalServer server = new OrderPortalServer();
@@ -73,14 +75,14 @@ public class OrderPortalServer {
             try {
                 mosquittoOrderUpdaterMiddleware.createOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (DuplicateDatabaseItemException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
@@ -104,14 +106,14 @@ public class OrderPortalServer {
             try {
                 mosquittoOrderUpdaterMiddleware.updateOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {
@@ -124,14 +126,14 @@ public class OrderPortalServer {
             try {
                 mosquittoOrderUpdaterMiddleware.deleteOrder(request);
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.SUCESSO.getCode())
+                        .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
             } catch (NotFoundItemInDatabaseException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
-                        .setError(ReplyNative.ERRO_MQTT.getCode())
+                        .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
             } finally {

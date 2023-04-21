@@ -11,7 +11,7 @@ public abstract class DatabaseException extends Exception {
 
     public Reply getErrorReply(ReplyNative replyNative) {
         return Reply.newBuilder()
-                .setError(replyNative.getCode())
+                .setError(replyNative.getError())
                 .setDescription(replyNative.getDescription())
                 .build();
     }
