@@ -7,10 +7,7 @@ import io.grpc.ManagedChannel;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
-import ufu.davigabriel.server.AdminPortalGrpc;
-import ufu.davigabriel.server.AdminPortalServer;
-import ufu.davigabriel.server.Client;
-import ufu.davigabriel.server.ID;
+import ufu.davigabriel.server.*;
 
 import java.util.Arrays;
 import java.util.Base64;
@@ -96,19 +93,20 @@ public class AdminPortalClient {
                         else System.out.println("CLIENTE REMOVIDO");
                     }
                     case CRIAR_PRODUTO -> {
-                        System.out.print("Escreva o ID do novo produto: ");
-                        String productId = scanner.nextLine();
                         System.out.print("Escreva o nome do novo produto: ");
                         String name = scanner.nextLine();
                         System.out.print("Escreva uma descricao do produto: ");
                         String description = scanner.nextLine();
                         try {
-                            System.out.print("Escreva o preco do produto");
+                            System.out.print("Escreva o preco do produto: ");
                             double price = Double.parseDouble(scanner.nextLine());
-                            System.out.print("Escreva a quantidade do produto");
+                            System.out.print("Escreva a quantidade do produto: ");
                             int quantity = Integer.parseInt(scanner.nextLine());
 
-                            ReplyNative response = createProduct(ProductNative.builder().PID(productId).name(name).description(description).price(price).quantity(quantity).build());
+                            String productId = geraId(name);
+                            System.out.println("ID A ser usado nele: " + productId);
+
+                            ReplyNative response = createProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(productId).name(name).description(description).price(price).quantity(quantity).build());
                             if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
                             else System.out.println("CLIENTE INSERIDO");
                         } catch (NullPointerException | NumberFormatException formatException) {
@@ -117,7 +115,7 @@ public class AdminPortalClient {
                     }
                     case BUSCAR_PRODUTO -> {
                         System.out.print("Escreva o ID do produto: ");
-                        Optional<ProductNative> foundProduct = retrieveProduct(scanner.nextLine());
+                        Optional<ProductNative> foundProduct = retrieveProduct(adminPortalClient.blockingStub, scanner.nextLine());
                         foundProduct.ifPresentOrElse(productNative -> {
                             System.out.println("PRODUTO ENCONTRADO");
                             System.out.println(productNative);
@@ -136,7 +134,7 @@ public class AdminPortalClient {
                             System.out.print("Escreva a quantidade do produto");
                             int quantity = Integer.parseInt(scanner.nextLine());
 
-                            ReplyNative response = updateProduct(ProductNative.builder().PID(targetProductId).name(name).description(description).price(price).quantity(quantity).build());
+                            ReplyNative response = updateProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(targetProductId).name(name).description(description).price(price).quantity(quantity).build());
                             if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
                             else System.out.println("PRODUTO ATUALIZADO");
                         } catch (NullPointerException | NumberFormatException formatException) {
@@ -146,7 +144,7 @@ public class AdminPortalClient {
                     case REMOVER_PRODUTO -> {
                         System.out.print("Escreva o ID do produto: ");
 
-                        ReplyNative response = removeProduct(scanner.nextLine());
+                        ReplyNative response = removeProduct(adminPortalClient.blockingStub, scanner.nextLine());
                         if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("PRODUTO REMOVIDO");
                     }
@@ -191,37 +189,24 @@ public class AdminPortalClient {
         return ReplyNative.fromReply(blockingStub.deleteClient(ID.newBuilder().setID(clientId).build()));
     }
 
-    static private ReplyNative createProduct(ProductNative productNative) {
-        if (!true) {
-            System.out.println("Criou produto " + productNative.getPID());
-            return ReplyNative.SUCESSO;
-        }
-
-        return ReplyNative.DUPLICATA;
+    static private ReplyNative createProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, ProductNative productNative) {
+        return ReplyNative.fromReply(blockingStub.createProduct(productNative.toProduct()));
     }
 
-    static private Optional<ProductNative> retrieveProduct(String productId) {
+    static private Optional<ProductNative> retrieveProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, String productId) {
+        Product product = blockingStub.retrieveProduct(ID.newBuilder().setID(productId).build());
         Optional<ProductNative> optionalProduct = Optional.empty();
-
-        System.out.println("Buscou um ID " + productId);
+        if (!"0".equals(product.getPID())) {
+            optionalProduct = Optional.of(ProductNative.fromProduct(product));
+        }
         return optionalProduct;
     }
 
-    static private ReplyNative updateProduct(ProductNative productNative) {
-        if (!true) {
-            System.out.println("Atualizou produto " + productNative.getPID());
-            return ReplyNative.SUCESSO;
-        }
-
-        return ReplyNative.DUPLICATA;
+    static private ReplyNative updateProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, ProductNative productNative) {
+        return ReplyNative.fromReply(blockingStub.updateProduct(productNative.toProduct()));
     }
 
-    static private ReplyNative removeProduct(String productId) {
-        if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
-            //incluir operacao que remove o cliente do banco e da cache (se estiver la)
-            System.out.println("Removeu um ID " + productId);
-            return ReplyNative.SUCESSO;
-        }
-        return ReplyNative.INEXISTENTE;
+    static private ReplyNative removeProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, String productId) {
+        return ReplyNative.fromReply(blockingStub.deleteProduct(ID.newBuilder().setID(productId).build()));
     }
 }
