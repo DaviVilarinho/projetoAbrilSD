@@ -68,6 +68,7 @@ public class AdminDatabaseService implements IAdminProxyDatabase {
     }
 
     public void deleteClient(ID id) throws NotFoundItemInDatabaseException {
+        if (!hasClient(id.getID())) throw new NotFoundItemInDatabaseException();
         deleteClient(id.getID());
     }
 

@@ -106,7 +106,7 @@ public class AdminPortalServer {
         @Override
         public void updateClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
+                mosquittoAdminUpdaterMiddleware.updateClient(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -116,6 +116,8 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
@@ -124,11 +126,13 @@ public class AdminPortalServer {
         @Override
         public void deleteClient(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishClientDeletion(request);
+                mosquittoAdminUpdaterMiddleware.deleteClient(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException notFoundItemInDatabaseException) {
+                notFoundItemInDatabaseException.replyError(responseObserver);
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.ERRO_MQTT.getError())
@@ -142,7 +146,7 @@ public class AdminPortalServer {
         @Override
         public void createProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_CREATION_TOPIC);
+                mosquittoAdminUpdaterMiddleware.createProduct(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -152,6 +156,8 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (DuplicateDatabaseItemException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
@@ -171,7 +177,7 @@ public class AdminPortalServer {
         @Override
         public void updateProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
+                mosquittoAdminUpdaterMiddleware.updateProduct(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -181,6 +187,8 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
@@ -189,7 +197,7 @@ public class AdminPortalServer {
         @Override
         public void deleteProduct(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishProductDeletion(request);
+                mosquittoAdminUpdaterMiddleware.deleteProduct(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -199,6 +207,8 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
