@@ -1,8 +1,3 @@
 #!/bin/bash
 
-
-
-for i in {1..5}
-do
-  ./gradlew run -PmainClassName=ufu.davigabriel.server.AdminPortalServer --args="$i" &
-done
+./gradlew extractIncludeProto extractProto generateProto compileJava processResources classes run -PmainClass=ufu.davigabriel.server.AdminPortalServer --args="0"
