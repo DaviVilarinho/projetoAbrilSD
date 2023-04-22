@@ -8,6 +8,11 @@ import ufu.davigabriel.server.ID;
 import ufu.davigabriel.server.Order;
 import ufu.davigabriel.server.Product;
 
+/**
+ * O Middleware e a Database fazem uso desta interface para redirecionar as atribuicoes de cada
+ * Middleware: falar para todos que houve mudancas
+ * Database: realizar mudanca
+ */
 public interface IOrderProxyDatabase {
     void createOrder(Order order) throws DuplicateDatabaseItemException, MqttException;
     void updateOrder(Order order) throws NotFoundItemInDatabaseException, MqttException;
