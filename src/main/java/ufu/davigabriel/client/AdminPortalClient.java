@@ -4,20 +4,18 @@ import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
+import ufu.davigabriel.Main;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.server.*;
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AdminPortalClient {
     private static String HOST = "localhost";
-    private static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT;
+    private static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
     private static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
 
     private final AdminPortalGrpc.AdminPortalBlockingStub blockingStub;
@@ -35,10 +33,12 @@ public class AdminPortalClient {
 
         try {
             AdminPortalClient adminPortalClient = new AdminPortalClient(channel);
+            System.out.println("Conectado com server " + TARGET_SERVER);
 
             AdminPortalOption adminPortalOption = AdminPortalOption.NOOP;
             Scanner scanner = new Scanner(System.in);
             while (!AdminPortalOption.SAIR.equals(adminPortalOption)) {
+                System.out.println("^^--__");
                 System.out.println("Opcoes:");
                 Arrays.stream(AdminPortalOption.values()).forEach(System.out::println);
 

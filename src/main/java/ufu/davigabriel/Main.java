@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Main {
-    private static int PORTAL_SERVERS = 5;
+    public static int PORTAL_SERVERS = 3;
 
     public static void main(String[] args) {
         List<ProcessBuilder> adminPortalServers = IntStream.range(0, PORTAL_SERVERS)
