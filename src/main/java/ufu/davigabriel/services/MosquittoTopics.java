@@ -13,6 +13,13 @@ import ufu.davigabriel.server.Product;
 
 import java.util.function.BiConsumer;
 
+/**
+ * Aqui sao definidos cada callback para cada subscricao.
+ *
+ * Note que cada um dos {@link MosquittoOrderUpdaterMiddleware} ou {@link MosquittoAdminUpdaterMiddleware}
+ * escolhem quais topicos querem subscrever, sendo assim nao ha subscricao de orders nos canais administrativos
+ * nem a reciproca.
+ */
 @Getter
 @ToString
 public enum MosquittoTopics {

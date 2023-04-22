@@ -11,6 +11,7 @@ import ufu.davigabriel.server.Product;
 import java.util.Arrays;
 import java.util.Random;
 
+
 public class MosquittoAdminUpdaterMiddleware extends MosquittoUpdaterMiddleware implements IAdminProxyDatabase {
     private static MosquittoAdminUpdaterMiddleware instance;
     final private AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();

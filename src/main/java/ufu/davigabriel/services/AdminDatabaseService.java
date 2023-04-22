@@ -14,6 +14,16 @@ import ufu.davigabriel.server.Product;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Aqui sao realizadas consultas e mudancas diretamente nas tabelas de clientes e produtos
+ *
+ * Sao operacoes simples de CRUD que nao compensam explicacoes
+ *
+ * Em geral evitamos inconsistencia, mesmo eventual, entao mesmo que
+ * quem chame verifique tambem a possibilidade ou nao de uma operacao,
+ * a database de Admin nao permitira operacoes produtos ou clientes duplicados ou
+ * inexistentes.
+ */
 public class AdminDatabaseService implements IAdminProxyDatabase {
     private static AdminDatabaseService instance;
     private HashMap<String, ProductNative> productsMap;

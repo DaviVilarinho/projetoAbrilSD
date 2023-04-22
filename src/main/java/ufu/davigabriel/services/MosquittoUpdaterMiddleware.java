@@ -7,13 +7,29 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.util.Random;
+
+/**
+ * Um Middleware se fez necessario no Projeto na medida em que:
+ * * E possivel escutar requests
+ * * E possivel mudar
+ * * E necessario atualizar multiplos servers
+ *
+ * O Middleware seria nosso proxy para a database. Toda *mudanca* (nao consulta) ao banco
+ * de dados precisa passar por aqui porque se faz necessario espalhar as mudancas pelas instancias do server
+ * e notificar mudancas recebidas via request.
+ *
+ * Por questao de arquitetura e configuracoes do mosquitto, este middleware conecta a uma instancia
+ * Mosquitto e publica toda mudanca assim que recebida, nao realiza mudancas locais.
+ * Paralelamente, existe uma thread subscrita aos topicos de interesse definidos nas classes que herdam esta
+ * que forma o segundo elo do middleware que seria atualizar assim que recebida mensagens de mudanca
+ */
 @Getter
 public abstract class MosquittoUpdaterMiddleware {
     final private boolean SHOULD_CONNECT_ONLINE = false;
     final private String RANDOM_ID = Integer.valueOf(new Random().nextInt(100000000)).toString();
     final private String CLIENT_ID = SHOULD_CONNECT_ONLINE ? "publisher-davi-vilarinho-gabriel-amaral-gbc074" : RANDOM_ID;
     final private MemoryPersistence PERSISTENCE = new MemoryPersistence();
-    private int QOS = 2;
+    private final int QOS = 2;
     private MqttClient mqttClient;
 
     MosquittoUpdaterMiddleware() {
