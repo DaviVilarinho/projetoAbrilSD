@@ -6,6 +6,10 @@ plugins {
     id("idea")
 }
 
+application {
+    mainClassName = mainClassName ?: (project.hasProperty("mainClass") ? project.getProperty("mainClass") : "ufu.davigabriel.Main")
+}
+
 group = "ufu.davigabriel"
 version = "1.0-SNAPSHOT"
 
@@ -20,8 +24,6 @@ repositories {
     mavenCentral()
     mavenLocal()
 }
-
-mainClassName=mainClassName ?: "ufu.davigabriel.server.AdminPortalServer"
 
 dependencies {
     //Lombok

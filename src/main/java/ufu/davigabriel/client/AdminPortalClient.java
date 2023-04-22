@@ -4,19 +4,18 @@ import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
+import ufu.davigabriel.Main;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
-import ufu.davigabriel.server.AdminPortalGrpc;
-import ufu.davigabriel.server.AdminPortalServer;
-import ufu.davigabriel.server.Reply;
+import ufu.davigabriel.server.*;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AdminPortalClient {
     private static String HOST = "localhost";
-    private static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT;
+    private static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
     private static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
 
     private final AdminPortalGrpc.AdminPortalBlockingStub blockingStub;
@@ -30,17 +29,16 @@ public class AdminPortalClient {
         System.out.println("Bem vindo ao Portal Administrativo");
         System.out.println("----------------------------------");
 
-        ManagedChannel channel = Grpc.newChannelBuilder(
-                TARGET_SERVER,
-                InsecureChannelCredentials.create()
-        ).build();
+        ManagedChannel channel = Grpc.newChannelBuilder(TARGET_SERVER, InsecureChannelCredentials.create()).build();
 
         try {
             AdminPortalClient adminPortalClient = new AdminPortalClient(channel);
+            System.out.println("Conectado com server " + TARGET_SERVER);
 
             AdminPortalOption adminPortalOption = AdminPortalOption.NOOP;
             Scanner scanner = new Scanner(System.in);
             while (!AdminPortalOption.SAIR.equals(adminPortalOption)) {
+                System.out.println("^^--__");
                 System.out.println("Opcoes:");
                 Arrays.stream(AdminPortalOption.values()).forEach(System.out::println);
 
@@ -60,81 +58,64 @@ public class AdminPortalClient {
                         System.out.print("Escreva o Novo zipCode do cliente: ");
                         String zipCode = scanner.nextLine();
 
-                        ReplyNative response = createClient(adminPortalClient.blockingStub, ClientNative.builder()
-                                .CID(geraId(name))
-                                .name(name)
-                                .zipCode(zipCode)
-                                .build());
-                        if (response.getError() != 0)
-                            System.out.println("ERRO: " + response.getDescription());
-                        else
-                            System.out.println("CLIENTE INSERIDO");
+                        String cid = geraId(name);
+                        System.out.println("Escolhendo ID: " + cid);
+                        ReplyNative response = createClient(adminPortalClient.blockingStub, ClientNative.builder().CID(cid).name(name).zipCode(zipCode).build());
+                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        else System.out.println("CLIENTE INSERIDO");
                     }
                     case BUSCAR_CLIENTE -> {
                         System.out.print("Escreva o ID do cliente: ");
-                        Optional<ClientNative> foundClient = retrieveClient(scanner.nextLine());
+                        Optional<ClientNative> foundClient = retrieveClient(adminPortalClient.blockingStub, scanner.nextLine());
                         foundClient.ifPresentOrElse(client -> {
                             System.out.println("CLIENTE ENCONTRADO");
                             System.out.println(client);
                         }, () -> System.out.println("CLIENTE NAO ENCONTRADO"));
                     }
                     case MUDAR_CLIENTE -> {
+                        System.out.print("Escreva o ID do cliente a mudar: ");
+                        String cidAMudar = scanner.nextLine();
+
                         System.out.print("Novo nome do cliente: ");
                         String name = scanner.nextLine();
                         System.out.print("Novo zipCode do cliente: ");
                         String zipCode = scanner.nextLine();
-                        System.out.print("Escreva o ID do cliente: ");
 
-                        ReplyNative response = updateClient(ClientNative.builder()
-                                .CID(scanner.nextLine())
-                                .name(name)
-                                .zipCode(zipCode)
-                                .build());
-                        if (response.getError() != 0)
-                            System.out.println("ERRO: " + response.getDescription());
-                        else
-                            System.out.println("CLIENTE ALTERADO");
+                        ReplyNative response = updateClient(adminPortalClient.blockingStub, ClientNative.builder().CID(cidAMudar).name(name).zipCode(zipCode).build());
+                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        else System.out.println("CLIENTE ALTERADO");
                     }
                     case REMOVER_CLIENTE -> {
                         System.out.print("Escreva o ID do cliente: ");
 
-                        ReplyNative response = removeClient(scanner.nextLine());
-                        if (response.getError() != 0)
-                            System.out.println("ERRO: " + response.getDescription());
-                        else
-                            System.out.println("CLIENTE REMOVIDO");
+                        ReplyNative response = removeClient(adminPortalClient.blockingStub, scanner.nextLine());
+                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        else System.out.println("CLIENTE REMOVIDO");
                     }
                     case CRIAR_PRODUTO -> {
-                        System.out.print("Escreva o ID do novo produto: ");
-                        String productId = scanner.nextLine();
                         System.out.print("Escreva o nome do novo produto: ");
                         String name = scanner.nextLine();
                         System.out.print("Escreva uma descricao do produto: ");
                         String description = scanner.nextLine();
                         try {
-                            System.out.print("Escreva o preco do produto");
+                            System.out.print("Escreva o preco do produto: ");
                             double price = Double.parseDouble(scanner.nextLine());
-                            System.out.print("Escreva a quantidade do produto");
+                            System.out.print("Escreva a quantidade do produto: ");
                             int quantity = Integer.parseInt(scanner.nextLine());
 
-                            ReplyNative response = createProduct(ProductNative.builder()
-                                    .PID(productId)
-                                    .name(name)
-                                    .description(description)
-                                    .price(price)
-                                    .quantity(quantity)
-                                    .build());
-                            if (response.getError() != 0)
-                                System.out.println("ERRO: " + response.getDescription());
-                            else
-                                System.out.println("CLIENTE INSERIDO");
+                            String productId = geraId(name);
+                            System.out.println("ID A ser usado nele: " + productId);
+
+                            ReplyNative response = createProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(productId).name(name).description(description).price(price).quantity(quantity).build());
+                            if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                            else System.out.println("CLIENTE INSERIDO");
                         } catch (NullPointerException | NumberFormatException formatException) {
                             System.out.println("Este produto e invalido e nao sera inserido");
                         }
                     }
                     case BUSCAR_PRODUTO -> {
                         System.out.print("Escreva o ID do produto: ");
-                        Optional<ProductNative> foundProduct = retrieveProduct(scanner.nextLine());
+                        Optional<ProductNative> foundProduct = retrieveProduct(adminPortalClient.blockingStub, scanner.nextLine());
                         foundProduct.ifPresentOrElse(productNative -> {
                             System.out.println("PRODUTO ENCONTRADO");
                             System.out.println(productNative);
@@ -153,17 +134,9 @@ public class AdminPortalClient {
                             System.out.print("Escreva a quantidade do produto");
                             int quantity = Integer.parseInt(scanner.nextLine());
 
-                            ReplyNative response = updateProduct(ProductNative.builder()
-                                    .PID(targetProductId)
-                                    .name(name)
-                                    .description(description)
-                                    .price(price)
-                                    .quantity(quantity)
-                                    .build());
-                            if (response.getError() != 0)
-                                System.out.println("ERRO: " + response.getDescription());
-                            else
-                                System.out.println("PRODUTO ATUALIZADO");
+                            ReplyNative response = updateProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(targetProductId).name(name).description(description).price(price).quantity(quantity).build());
+                            if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                            else System.out.println("PRODUTO ATUALIZADO");
                         } catch (NullPointerException | NumberFormatException formatException) {
                             System.out.println("Este produto e invalido e nao sera atualizado");
                         }
@@ -171,11 +144,9 @@ public class AdminPortalClient {
                     case REMOVER_PRODUTO -> {
                         System.out.print("Escreva o ID do produto: ");
 
-                        ReplyNative response = removeProduct(scanner.nextLine());
-                        if (response.getError() != 0)
-                            System.out.println("ERRO: " + response.getDescription());
-                        else
-                            System.out.println("PRODUTO REMOVIDO");
+                        ReplyNative response = removeProduct(adminPortalClient.blockingStub, scanner.nextLine());
+                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        else System.out.println("PRODUTO REMOVIDO");
                     }
                     default -> {
                         System.out.println("Encerrando o portal administrativo.");
@@ -196,72 +167,46 @@ public class AdminPortalClient {
     static private String geraId(String nome) {
         return Base64.getEncoder().encodeToString(nome.getBytes());
     }
-    
+
     static private ReplyNative createClient(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, ClientNative clientNative) {
-        return ReplyNative.fromReply(
-                blockingStub.createClient(
-                        clientNative.toClient()));
+        return ReplyNative.fromReply(blockingStub.createClient(clientNative.toClient()));
     }
 
-    static private Optional<ClientNative> retrieveClient(String clientId) {
-        Optional optClient = Optional.empty();
-        //incluir operacao que tenta recuperar o cliente da cache
-        //se nao encontrar, incluir operacao que tenta recuperar o cliente do banco de dados e incluir operacao que atualiza a cache
-
-        System.out.println("Buscou um ID " + clientId);
+    static private Optional<ClientNative> retrieveClient(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, String clientId) {
+        Client client = blockingStub.retrieveClient(ID.newBuilder().setID(clientId).build());
+        Optional<ClientNative> optClient = Optional.empty();
+        if (!"0".equals(client.getCID())) {
+            optClient = Optional.of(ClientNative.fromClient(client));
+        }
         return optClient;
     }
 
-    static private ReplyNative updateClient(ClientNative clientNative) {
-        if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
-            //incluir operacao que atualiza o cliente no banco e na cache
-            System.out.println("Atualizou um ID " + clientNative.getCID());
-            return ReplyNative.SUCESSO;
-        }
-
-        return ReplyNative.INEXISTENTE;
+    static private ReplyNative updateClient(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, ClientNative clientNative) {
+        return ReplyNative.fromReply(blockingStub.updateClient(clientNative.toClient()));
     }
 
-    static private ReplyNative removeClient(String clientId) {
-        if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
-            //incluir operacao que remove o cliente do banco e da cache (se estiver la)
-            System.out.println("Removeu um ID " + clientId);
-            return ReplyNative.SUCESSO;
-        }
-        return ReplyNative.INEXISTENTE;
+    static private ReplyNative removeClient(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, String clientId) {
+        return ReplyNative.fromReply(blockingStub.deleteClient(ID.newBuilder().setID(clientId).build()));
     }
 
-    static private ReplyNative createProduct(ProductNative productNative) {
-        if (!true) {
-            System.out.println("Criou produto " + productNative.getPID());
-            return ReplyNative.SUCESSO;
-        }
-
-        return ReplyNative.DUPLICATA;
+    static private ReplyNative createProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, ProductNative productNative) {
+        return ReplyNative.fromReply(blockingStub.createProduct(productNative.toProduct()));
     }
 
-    static private Optional<ProductNative> retrieveProduct(String productId) {
+    static private Optional<ProductNative> retrieveProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, String productId) {
+        Product product = blockingStub.retrieveProduct(ID.newBuilder().setID(productId).build());
         Optional<ProductNative> optionalProduct = Optional.empty();
-
-        System.out.println("Buscou um ID " + productId);
+        if (!"0".equals(product.getPID())) {
+            optionalProduct = Optional.of(ProductNative.fromProduct(product));
+        }
         return optionalProduct;
     }
 
-    static private ReplyNative updateProduct(ProductNative productNative) {
-        if (!true) {
-            System.out.println("Atualizou produto " + productNative.getPID());
-            return ReplyNative.SUCESSO;
-        }
-
-        return ReplyNative.DUPLICATA;
+    static private ReplyNative updateProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, ProductNative productNative) {
+        return ReplyNative.fromReply(blockingStub.updateProduct(productNative.toProduct()));
     }
 
-    static private ReplyNative removeProduct(String productId) {
-        if (true) { //substituir true por uma operacao que verifica se o cliente existe no banco
-            //incluir operacao que remove o cliente do banco e da cache (se estiver la)
-            System.out.println("Removeu um ID " + productId);
-            return ReplyNative.SUCESSO;
-        }
-        return ReplyNative.INEXISTENTE;
+    static private ReplyNative removeProduct(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, String productId) {
+        return ReplyNative.fromReply(blockingStub.deleteProduct(ID.newBuilder().setID(productId).build()));
     }
 }

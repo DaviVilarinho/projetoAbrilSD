@@ -11,6 +11,7 @@ import ufu.davigabriel.server.Product;
 import java.util.Arrays;
 import java.util.Random;
 
+
 public class MosquittoAdminUpdaterMiddleware extends MosquittoUpdaterMiddleware implements IAdminProxyDatabase {
     private static MosquittoAdminUpdaterMiddleware instance;
     final private AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
@@ -34,19 +35,19 @@ public class MosquittoAdminUpdaterMiddleware extends MosquittoUpdaterMiddleware 
 
         return instance;
     }
-    public void publishClientChange(Client client, MosquittoTopics mosquittoTopics) throws MqttException {
+    private void publishClientChange(Client client, MosquittoTopics mosquittoTopics) throws MqttException {
         super.getMqttClient().publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(client).getBytes()));
     }
 
-    public void publishClientDeletion(ID id) throws MqttException {
+    private void publishClientDeletion(ID id) throws MqttException {
         super.getMqttClient().publish(MosquittoTopics.CLIENT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
 
-    public void publishProductChange(Product product, MosquittoTopics mosquittoTopics) throws MqttException {
+    private void publishProductChange(Product product, MosquittoTopics mosquittoTopics) throws MqttException {
         super.getMqttClient().publish(mosquittoTopics.name(), new MqttMessage(new Gson().toJson(product).getBytes()));
     }
 
-    public void publishProductDeletion(ID id) throws MqttException {
+    private void publishProductDeletion(ID id) throws MqttException {
         super.getMqttClient().publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
     @Override

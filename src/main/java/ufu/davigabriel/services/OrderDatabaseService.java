@@ -9,6 +9,13 @@ import ufu.davigabriel.server.Order;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * As mudancas de pedidos devem ser realizadas aqui, bem como
+ * o armazenamento das tabelas.
+ *
+ * Esta classe nao tem responsabilidade de sincronia ou atualizacao,
+ * apenas realiza mudancas na tabela e nao permite estados invalidos.
+ */
 public class OrderDatabaseService implements IOrderProxyDatabase {
     private static OrderDatabaseService instance;
     private HashMap<String, OrderNative> ordersMap;

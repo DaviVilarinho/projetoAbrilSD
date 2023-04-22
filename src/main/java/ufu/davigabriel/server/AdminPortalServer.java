@@ -5,25 +5,24 @@ import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
-import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
 import ufu.davigabriel.services.AdminDatabaseService;
-import ufu.davigabriel.services.MosquittoTopics;
 import ufu.davigabriel.services.MosquittoAdminUpdaterMiddleware;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class AdminPortalServer {
+    public static int BASE_PORTAL_SERVER_PORT = 25506; // definindo porta base para servers
     private Server server;
-    public static int BASE_PORTAL_SERVER_PORT = 25506;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = BASE_PORTAL_SERVER_PORT;
-        if (args.length > 0) {
+        if (args.length > 0) { // aceita dinamicamente portas somado ao valor base
             port = BASE_PORTAL_SERVER_PORT + Integer.parseInt(args[0]);
         }
         AdminPortalServer server = new AdminPortalServer();
@@ -33,7 +32,6 @@ public class AdminPortalServer {
     }
 
     private void start(int port) throws IOException {
-        /* The port on which the server should run */
         server = Grpc.newServerBuilderForPort(port, InsecureServerCredentials.create())
                 .addService(new AdminPortalImpl())
                 .build()
@@ -41,14 +39,12 @@ public class AdminPortalServer {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-                System.err.println("*** shutting down gRPC server since JVM is shutting down");
                 try {
                     AdminPortalServer.this.stop();
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.err);
                 }
-                System.err.println("*** server shut down");
+                System.err.println("SERVER ENCERRADO");
             }
         });
     }
@@ -59,19 +55,30 @@ public class AdminPortalServer {
         }
     }
 
-    /**
-     * Await termination on the main thread since the grpc library uses daemon threads.
-     */
     private void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
-            server.awaitTermination();
+            server.awaitTermination(); // GRPC roda em daemons...
         }
     }
 
     static public class AdminPortalImpl extends AdminPortalGrpc.AdminPortalImplBase {
+        // singleton de db, necessario apenas em buscas porque demais mudancas devem passar pelo MIDDLEWARE
         private AdminDatabaseService adminDatabaseService = AdminDatabaseService.getInstance();
+
+        // Singleton do Middleware GRPC. Atua como proxy, mudancas sao repassadas para ele, que publica e ao receber noticias muda
         private MosquittoAdminUpdaterMiddleware mosquittoAdminUpdaterMiddleware = MosquittoAdminUpdaterMiddleware.getInstance();
 
+
+        /**
+            As operaçoes de escrita, delecao e update nao podem ser executadas localmente.
+            Isso se deve ao fato de que o Middleware recebe mensagens inclusive de si mesmo.
+
+            Entao por uma questao de consistencia, realiza essas operacoes publicando a mensagem recebida,
+            todos ouvem e realizam a mudanca de acordo com a mensagem recebida.
+
+            Existe ainda inconsistencia eventual se perder conexao, mas nesse caso o cluster deixou de ser
+            um cluster e nao e o objetivo deste projeto.
+         */
         @Override
         public void createClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
@@ -92,6 +99,11 @@ public class AdminPortalServer {
             }
         }
 
+        /**
+         * No caso de Retrieves, nao e necessario consultar o middleware. Um possivel caso
+         * que seria necessario seria se houvesse metodos para atualizar todos os servidores.
+         * Mas como nao existe, basta pegar a cache local
+         */
         @Override
         public void retrieveClient(ID request, StreamObserver<Client> responseObserver) {
             try {
@@ -106,7 +118,7 @@ public class AdminPortalServer {
         @Override
         public void updateClient(Client request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishClientChange(request, MosquittoTopics.CLIENT_UPDATE_TOPIC);
+                mosquittoAdminUpdaterMiddleware.updateClient(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -116,6 +128,8 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
@@ -124,11 +138,13 @@ public class AdminPortalServer {
         @Override
         public void deleteClient(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishClientDeletion(request);
+                mosquittoAdminUpdaterMiddleware.deleteClient(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException notFoundItemInDatabaseException) {
+                notFoundItemInDatabaseException.replyError(responseObserver);
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.ERRO_MQTT.getError())
@@ -142,7 +158,7 @@ public class AdminPortalServer {
         @Override
         public void createProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_CREATION_TOPIC);
+                mosquittoAdminUpdaterMiddleware.createProduct(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -152,11 +168,16 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (DuplicateDatabaseItemException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
         }
 
+        /**
+         * mesmo caso relatado anteriormente
+         */
         @Override
         public void retrieveProduct(ID request, StreamObserver<Product> responseObserver) {
             try {
@@ -171,7 +192,7 @@ public class AdminPortalServer {
         @Override
         public void updateProduct(Product request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishProductChange(request, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
+                mosquittoAdminUpdaterMiddleware.updateProduct(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -181,6 +202,8 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
@@ -189,7 +212,7 @@ public class AdminPortalServer {
         @Override
         public void deleteProduct(ID request, StreamObserver<Reply> responseObserver) {
             try {
-                mosquittoAdminUpdaterMiddleware.publishProductDeletion(request);
+                mosquittoAdminUpdaterMiddleware.deleteProduct(request);
                 responseObserver.onNext(Reply.newBuilder()
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
@@ -199,6 +222,8 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
+            } catch (NotFoundItemInDatabaseException e) {
+                e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
             }
