@@ -70,7 +70,7 @@ public class AdminPortalServer {
 
 
         /**
-            As operaçoes de escrita, delecao e update nao podem ser executadas localmente.
+            As operacoes de escrita, delecao e update nao podem ser executadas localmente.
             Isso se deve ao fato de que o Middleware recebe mensagens inclusive de si mesmo.
 
             Entao por uma questao de consistencia, realiza essas operacoes publicando a mensagem recebida,

@@ -20,6 +20,8 @@ public class AdminPortalServerTest {
     @Rule
     public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
+    public static int TOLERANCE_MS = 1000;
+
     @Test
     public void shouldCrudClientOneServer() throws IOException, InterruptedException {
         Client clientThatShouldBeCreated = RandomUtils.generateRandomClient().toClient();
@@ -35,7 +37,7 @@ public class AdminPortalServerTest {
                 grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()));
 
         Reply reply = blockingStub.createClient(clientThatShouldBeCreated);
-        Thread.sleep(1500);
+        Thread.sleep(TOLERANCE_MS);
         Client client = blockingStub.retrieveClient(ID.newBuilder().setID(clientThatShouldBeCreated.getCID()).build());
         Assert.assertEquals(clientThatShouldBeCreated, client);
         Assert.assertNotEquals(clientThatShouldNotBeCreated, client);
@@ -76,7 +78,7 @@ public class AdminPortalServerTest {
                 grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()));
 
         Reply reply = blockingStub.createProduct(productThatShouldBeCreated);
-        Thread.sleep(1500);
+        Thread.sleep(TOLERANCE_MS);
         Product product = blockingStub.retrieveProduct(ID.newBuilder().setID(productThatShouldBeCreated.getPID()).build());
         Assert.assertEquals(productThatShouldBeCreated, product);
         Assert.assertNotEquals(productThatShouldNotBeCreated, product);
@@ -124,7 +126,7 @@ public class AdminPortalServerTest {
 
         Reply reply = adminPortalBlockingStubs.get(0).createClient(clientThatShouldBeCreated);
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
-        Thread.sleep(500);
+        Thread.sleep(TOLERANCE_MS);
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(clientThatShouldBeCreated.getCID()).build());
             Assert.assertEquals(clientThatShouldBeCreated, client);
@@ -133,7 +135,7 @@ public class AdminPortalServerTest {
         Client anotherClientThatShouldBeCreated = anotherClientNativeThatShouldBeCreated.toClient();
         reply = adminPortalBlockingStubs.get(0).createClient(anotherClientThatShouldBeCreated);
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
-        Thread.sleep(500);
+        Thread.sleep(TOLERANCE_MS);
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeCreated.getCID()).build());
             Assert.assertEquals(client, anotherClientThatShouldBeCreated);
@@ -144,7 +146,7 @@ public class AdminPortalServerTest {
                 .toClient();
         reply = adminPortalBlockingStubs.get(0).updateClient(anotherClientThatShouldBeUpdated);
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
-        Thread.sleep(500);
+        Thread.sleep(TOLERANCE_MS);
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeUpdated.getCID()).build());
             Assert.assertEquals(client, anotherClientThatShouldBeUpdated);
@@ -154,7 +156,7 @@ public class AdminPortalServerTest {
                         .setID(anotherClientThatShouldBeUpdated.getCID())
                         .build());
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
-        Thread.sleep(500);
+        Thread.sleep(TOLERANCE_MS);
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeUpdated.getCID()).build());
             Assert.assertEquals(client.getCID(), "0");
