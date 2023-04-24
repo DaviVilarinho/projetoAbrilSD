@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.Random;
 
 /*
-Diferentemente do 'MosquitoAdminUpdaterMiddleware', esta classe não pode atualizar na resposta de uma subscrição, no 'AdminPortalServer',
-via requests, a quantidade de produtos. Isso se deve ao fato de que existem multiplas instâncias e todas executarão o callback para
-mudar o estado local. No entanto, esta sería uma mudança no estado global.
+Diferentemente do 'MosquitoAdminUpdaterMiddleware', esta classe nao pode atualizar na resposta de uma subscricao, no 'AdminPortalServer',
+via requests, a quantidade de produtos. Isso se deve ao fato de que existem multiplas instancias e todas executarao o callback para
+mudar o estado local. No entanto, esta seria uma mudanca no estado global.
  */
 public class MosquittoOrderUpdaterMiddleware extends MosquittoUpdaterMiddleware implements IOrderProxyDatabase {
     private static MosquittoOrderUpdaterMiddleware instance;

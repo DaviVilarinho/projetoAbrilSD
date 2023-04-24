@@ -68,13 +68,13 @@ public class OrderPortalClient {
                         String orderId = scanner.nextLine();
 
                         ArrayList<OrderItemNative> addedProducts = new ArrayList<>();
-                        char option;
-                        do {
+                        String option = "z";
+                        while (!"n".equals(option)){
                             System.out.print("Escreva se deseja adicionar um produto ao pedido (y/n): ");
-                            option = scanner.next().toLowerCase().charAt(0);
-                            if(option == 'y')
+                            option = scanner.nextLine().strip().toLowerCase();
+                            if("y".equals(option))
                                 addedProducts.add(orderPortalClient.addProductToOrder(connectionBlockingStub, scanner));
-                        }while (option != 'n');
+                        }
 
                         ReplyNative response = createOrder(orderPortalClient.blockingStub, OrderNative.builder().OID(orderId).CID(loggedClientId).products(addedProducts).build());
                         if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
@@ -88,7 +88,7 @@ public class OrderPortalClient {
                             double totalPrice = 0;
                             for(OrderItemNative item : orderNative.getProducts()){
                                 System.out.println(item);
-                                totalPrice+=item.getPrice();
+                                totalPrice += item.getPrice();
                             }
                             System.out.println("Preco final do pedido: " + totalPrice);
                         }, () -> System.out.println("PEDIDO NAO ENCONTRADO"));
@@ -183,7 +183,7 @@ public class OrderPortalClient {
             if (!"0".equals(blockingStub.retrieveClient(ID.newBuilder().setID(clientId).build()).getCID()))
                 return clientId;
 
-            System.out.println("ID inválido. " + --attempts + " tentativas restantes.");
+            System.out.println("ID invalido. " + --attempts + " tentativas restantes.");
         } while (attempts > 0);
 
         return null;
