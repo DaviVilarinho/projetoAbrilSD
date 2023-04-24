@@ -4,6 +4,8 @@ import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
+import lombok.Getter;
+import lombok.Setter;
 import ufu.davigabriel.Main;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
@@ -14,9 +16,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AdminPortalClient {
-    private static String HOST = "localhost";
-    private static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
-    private static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
+    public static String HOST = "localhost";
+    public static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
+    public static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
     private final AdminPortalGrpc.AdminPortalBlockingStub blockingStub;
 
     public AdminPortalClient(Channel channel) {
