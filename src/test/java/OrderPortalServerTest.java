@@ -130,4 +130,55 @@ public class OrderPortalServerTest {
             Thread.sleep(TOLERANCE_MS);
         }
     }
+
+    @Test
+    public void shouldIncreaseProductsQuantityOnDeletion() throws IOException,
+            InterruptedException {
+        AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
+        Thread.sleep(TOLERANCE_MS);
+        OrderPortalGrpc.OrderPortalBlockingStub orderPortalBlockingStub = getOrderBlockingStub();
+        Thread.sleep(TOLERANCE_MS);
+
+        RandomOrderTriple randomOrderTriple = RandomUtils.generateRandomValidOrder();
+
+        Assert.assertEquals(adminPortalBlockingStub.createClient(randomOrderTriple.getRandomClientNative().toClient()).getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
+        for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
+            Assert.assertEquals(adminPortalBlockingStub.createProduct(productNative.toProduct()).getError(), ReplyNative.SUCESSO.getError());
+            Thread.sleep(TOLERANCE_MS);
+        }
+        Assert.assertEquals(orderPortalBlockingStub.createOrder(randomOrderTriple.getRandomOrderNative().toOrder()).getError(), ReplyNative.SUCESSO.getError());
+
+        for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
+            Product productAfterUpdate = adminPortalBlockingStub.retrieveProduct(ID.newBuilder().setID(productNative.getPID()).build());
+            Assert.assertNotEquals(productAfterUpdate.getPID(), "0");
+
+            Optional<OrderItemNative> optionalOrderItemNativeThatMatchesProductNative = randomOrderTriple.getRandomOrderNative().getProducts().stream().filter(productsInOrder -> productsInOrder.getPID() == productNative.getPID()).findFirst();
+
+            Assert.assertTrue(optionalOrderItemNativeThatMatchesProductNative.isPresent());
+
+            OrderItemNative orderItemNativeThatMatchesProductNative = optionalOrderItemNativeThatMatchesProductNative.get();
+
+            Assert.assertEquals(ProductNative.fromProduct(productAfterUpdate).getQuantity() + orderItemNativeThatMatchesProductNative.getQuantity(), productNative.getQuantity());
+            Thread.sleep(TOLERANCE_MS);
+        }
+
+        Assert.assertEquals(orderPortalBlockingStub.deleteOrder(ID.newBuilder()
+                .setID(randomOrderTriple.getRandomOrderNative().getOID()).build())
+                .getError(), ReplyNative.SUCESSO.getError());
+
+        for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
+            Product productAfterUpdate = adminPortalBlockingStub.retrieveProduct(ID.newBuilder().setID(productNative.getPID()).build());
+            Assert.assertNotEquals(productAfterUpdate.getPID(), "0");
+
+            Optional<OrderItemNative> optionalOrderItemNativeThatMatchesProductNative = randomOrderTriple.getRandomOrderNative().getProducts().stream().filter(productsInOrder -> productsInOrder.getPID() == productNative.getPID()).findFirst();
+
+            Assert.assertTrue(optionalOrderItemNativeThatMatchesProductNative.isPresent());
+
+            OrderItemNative orderItemNativeThatMatchesProductNative = optionalOrderItemNativeThatMatchesProductNative.get();
+
+            Assert.assertEquals(ProductNative.fromProduct(productAfterUpdate).getQuantity(), productNative.getQuantity());
+            Thread.sleep(TOLERANCE_MS);
+        }
+    }
 }

@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
 
 /**
  * Aqui sao definidos cada callback para cada subscricao.
- *
+ * <p>
  * Note que cada um dos {@link MosquittoOrderUpdaterMiddleware} ou {@link MosquittoAdminUpdaterMiddleware}
  * escolhem quais topicos querem subscrever, sendo assim nao ha subscricao de orders nos canais administrativos
  * nem a reciproca.
@@ -89,7 +89,7 @@ public enum MosquittoTopics {
         }
     }), ORDER_DELETION_TOPIC("order/deletion", (topic, message) -> {
         OrderDatabaseService orderDatabaseService = OrderDatabaseService.getInstance();
-        ID orderId = new Gson().fromJson(message.toString(), ID.class);
+        ID orderId = ID.newBuilder().setID(message.toString().strip().trim()).build();
         try {
             orderDatabaseService.deleteOrder(orderId);
         } catch (NotFoundItemInPortalException e) {
