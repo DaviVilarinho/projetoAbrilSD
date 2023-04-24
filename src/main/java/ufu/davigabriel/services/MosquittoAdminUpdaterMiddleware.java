@@ -2,14 +2,13 @@ package ufu.davigabriel.services;
 
 import com.google.gson.Gson;
 import org.eclipse.paho.client.mqttv3.*;
-import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.exceptions.DuplicatePortalItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInPortalException;
 import ufu.davigabriel.server.Client;
 import ufu.davigabriel.server.ID;
 import ufu.davigabriel.server.Product;
 
 import java.util.Arrays;
-import java.util.Random;
 
 
 public class MosquittoAdminUpdaterMiddleware extends MosquittoUpdaterMiddleware implements IAdminProxyDatabase {
@@ -51,44 +50,44 @@ public class MosquittoAdminUpdaterMiddleware extends MosquittoUpdaterMiddleware 
         super.getMqttClient().publish(MosquittoTopics.PRODUCT_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
     @Override
-    public void createClient(Client client) throws DuplicateDatabaseItemException, MqttException {
+    public void createClient(Client client) throws DuplicatePortalItemException, MqttException {
         if (adminDatabaseService.hasClient(client.getCID()))
-            throw new DuplicateDatabaseItemException();
+            throw new DuplicatePortalItemException();
         publishClientChange(client, MosquittoTopics.CLIENT_CREATION_TOPIC);
     }
 
     @Override
-    public void updateClient(Client client) throws NotFoundItemInDatabaseException, MqttException {
+    public void updateClient(Client client) throws NotFoundItemInPortalException, MqttException {
         if (!adminDatabaseService.hasClient(client.getCID()))
-            throw new NotFoundItemInDatabaseException();
+            throw new NotFoundItemInPortalException();
         publishClientChange(client, MosquittoTopics.CLIENT_UPDATE_TOPIC);
     }
 
     @Override
-    public void deleteClient(ID id) throws NotFoundItemInDatabaseException, MqttException {
+    public void deleteClient(ID id) throws NotFoundItemInPortalException, MqttException {
         if (!adminDatabaseService.hasClient(id.getID()))
-            throw new NotFoundItemInDatabaseException();
+            throw new NotFoundItemInPortalException();
         publishClientDeletion(id);
     }
 
     @Override
-    public void createProduct(Product product) throws DuplicateDatabaseItemException, MqttException {
+    public void createProduct(Product product) throws DuplicatePortalItemException, MqttException {
         if (adminDatabaseService.hasProduct(product.getPID()))
-            throw new DuplicateDatabaseItemException();
+            throw new DuplicatePortalItemException();
         publishProductChange(product, MosquittoTopics.PRODUCT_CREATION_TOPIC);
     }
 
     @Override
-    public void updateProduct(Product product) throws NotFoundItemInDatabaseException, MqttException {
+    public void updateProduct(Product product) throws NotFoundItemInPortalException, MqttException {
         if (!adminDatabaseService.hasProduct(product.getPID()))
-            throw new NotFoundItemInDatabaseException();
+            throw new NotFoundItemInPortalException();
         publishProductChange(product, MosquittoTopics.PRODUCT_UPDATE_TOPIC);
     }
 
     @Override
-    public void deleteProduct(ID id) throws NotFoundItemInDatabaseException, MqttException {
+    public void deleteProduct(ID id) throws NotFoundItemInPortalException, MqttException {
         if (!adminDatabaseService.hasProduct(id.getID()))
-            throw new NotFoundItemInDatabaseException();
+            throw new NotFoundItemInPortalException();
         publishProductDeletion(id);
     }
 }

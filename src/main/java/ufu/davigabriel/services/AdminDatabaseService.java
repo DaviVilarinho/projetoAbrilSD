@@ -1,17 +1,14 @@
 package ufu.davigabriel.services;
 //todo database validator
 
-import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.exceptions.DuplicatePortalItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInPortalException;
 import ufu.davigabriel.models.ClientNative;
-import ufu.davigabriel.models.OrderNative;
 import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.server.Client;
 import ufu.davigabriel.server.ID;
-import ufu.davigabriel.server.Order;
 import ufu.davigabriel.server.Product;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -43,87 +40,90 @@ public class AdminDatabaseService implements IAdminProxyDatabase {
         return instance;
     }
 
-    public void listAll() {
-        productsMap.forEach((s, productNative) -> System.out.println(productNative));
+    public void listAllClients() {
         clientsMap.forEach((s, client) -> System.out.println(client));
     }
 
-    public void createClient(Client client) throws DuplicateDatabaseItemException {
+    public void listAllProdcuts() {
+        productsMap.forEach((s, productNative) -> System.out.println(productNative));
+    }
+
+    public void createClient(Client client) throws DuplicatePortalItemException {
         createClient(ClientNative.fromClient(client));
     }
 
-    public void createClient(ClientNative clientNative) throws DuplicateDatabaseItemException {
+    public void createClient(ClientNative clientNative) throws DuplicatePortalItemException {
         if (hasClient(clientNative.getCID()))
-            throw new DuplicateDatabaseItemException();
+            throw new DuplicatePortalItemException();
 
         clientsMap.putIfAbsent(clientNative.getCID(), clientNative);
     }
 
-    public ClientNative retrieveClient(ID id) throws NotFoundItemInDatabaseException {
+    public ClientNative retrieveClient(ID id) throws NotFoundItemInPortalException {
         return retrieveClient(id.getID());
     }
 
-    public ClientNative retrieveClient(String id) throws NotFoundItemInDatabaseException {
-        if (!hasClient(id)) throw new NotFoundItemInDatabaseException();
+    public ClientNative retrieveClient(String id) throws NotFoundItemInPortalException {
+        if (!hasClient(id)) throw new NotFoundItemInPortalException();
         return clientsMap.get(id);
     }
 
-    public void updateClient(Client client) throws NotFoundItemInDatabaseException {
+    public void updateClient(Client client) throws NotFoundItemInPortalException {
         updateClient(ClientNative.fromClient(client));
     }
 
-    public void updateClient(ClientNative clientNative) throws NotFoundItemInDatabaseException {
-        if (!hasClient(clientNative.getCID())) throw new NotFoundItemInDatabaseException();
+    public void updateClient(ClientNative clientNative) throws NotFoundItemInPortalException {
+        if (!hasClient(clientNative.getCID())) throw new NotFoundItemInPortalException();
         clientsMap.put(clientNative.getCID(), clientNative);
     }
 
-    public void deleteClient(ID id) throws NotFoundItemInDatabaseException {
-        if (!hasClient(id.getID())) throw new NotFoundItemInDatabaseException();
+    public void deleteClient(ID id) throws NotFoundItemInPortalException {
+        if (!hasClient(id.getID())) throw new NotFoundItemInPortalException();
         deleteClient(id.getID());
     }
 
-    public void deleteClient(String id) throws NotFoundItemInDatabaseException {
-        if (!hasClient(id)) throw new NotFoundItemInDatabaseException();
+    public void deleteClient(String id) throws NotFoundItemInPortalException {
+        if (!hasClient(id)) throw new NotFoundItemInPortalException();
         clientsMap.remove(id);
     }
 
     public boolean hasClient(String id) { return clientsMap.containsKey(id); }
 
-    public void createProduct(Product product) throws DuplicateDatabaseItemException {
+    public void createProduct(Product product) throws DuplicatePortalItemException {
         createProduct(ProductNative.fromProduct(product));
     }
 
-    public void createProduct(ProductNative productNative) throws DuplicateDatabaseItemException {
+    public void createProduct(ProductNative productNative) throws DuplicatePortalItemException {
         if (hasProduct(productNative.getPID()))
-            throw new DuplicateDatabaseItemException();
+            throw new DuplicatePortalItemException();
 
         productsMap.putIfAbsent(productNative.getPID(), productNative);
     }
 
-    public ProductNative retrieveProduct(ID id) throws NotFoundItemInDatabaseException {
+    public ProductNative retrieveProduct(ID id) throws NotFoundItemInPortalException {
         return retrieveProduct(id.getID());
     }
 
-    public ProductNative retrieveProduct(String id) throws NotFoundItemInDatabaseException {
-        if (!hasProduct(id)) throw new NotFoundItemInDatabaseException();
+    public ProductNative retrieveProduct(String id) throws NotFoundItemInPortalException {
+        if (!hasProduct(id)) throw new NotFoundItemInPortalException();
         return productsMap.get(id);
     }
 
-    public void updateProduct(Product product) throws NotFoundItemInDatabaseException {
+    public void updateProduct(Product product) throws NotFoundItemInPortalException {
         updateProduct(ProductNative.fromProduct(product));
     }
 
-    public void updateProduct(ProductNative ProductNative) throws NotFoundItemInDatabaseException {
-        if (!hasProduct(ProductNative.getPID())) throw new NotFoundItemInDatabaseException();
+    public void updateProduct(ProductNative ProductNative) throws NotFoundItemInPortalException {
+        if (!hasProduct(ProductNative.getPID())) throw new NotFoundItemInPortalException();
         productsMap.put(ProductNative.getPID(), ProductNative);
     }
 
-    public void deleteProduct(ID id) throws NotFoundItemInDatabaseException {
+    public void deleteProduct(ID id) throws NotFoundItemInPortalException {
         deleteProduct(id.getID());
     }
 
-    public void deleteProduct(String id) throws NotFoundItemInDatabaseException {
-        if (!hasProduct(id)) throw new NotFoundItemInDatabaseException();
+    public void deleteProduct(String id) throws NotFoundItemInPortalException {
+        if (!hasProduct(id)) throw new NotFoundItemInPortalException();
         productsMap.remove(id);
     }
 

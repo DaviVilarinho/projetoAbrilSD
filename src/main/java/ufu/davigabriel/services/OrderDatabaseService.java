@@ -1,8 +1,8 @@
 package ufu.davigabriel.services;
 //todo database validator
 
-import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.exceptions.DuplicatePortalItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInPortalException;
 import ufu.davigabriel.models.OrderNative;
 import ufu.davigabriel.server.ID;
 import ufu.davigabriel.server.Order;
@@ -37,39 +37,39 @@ public class OrderDatabaseService implements IOrderProxyDatabase {
         ordersMap.forEach((s, orderNative) -> System.out.println(orderNative));
     }
 
-    public void createOrder(OrderNative orderNative) throws DuplicateDatabaseItemException {
-        if (hasOrder(orderNative.getOID())) throw new DuplicateDatabaseItemException();
+    public void createOrder(OrderNative orderNative) throws DuplicatePortalItemException {
+        if (hasOrder(orderNative.getOID())) throw new DuplicatePortalItemException();
         ordersMap.put(orderNative.getOID(), orderNative);
     }
 
-    public void createOrder(Order order) throws DuplicateDatabaseItemException {
+    public void createOrder(Order order) throws DuplicatePortalItemException {
         createOrder(OrderNative.fromOrder(order));
     }
 
-    public OrderNative retrieveOrder(String id) throws NotFoundItemInDatabaseException {
-        if (!hasOrder(id)) throw new NotFoundItemInDatabaseException();
+    public OrderNative retrieveOrder(String id) throws NotFoundItemInPortalException {
+        if (!hasOrder(id)) throw new NotFoundItemInPortalException();
         return ordersMap.get(id);
     }
 
-    public OrderNative retrieveOrder(ID id) throws NotFoundItemInDatabaseException {
+    public OrderNative retrieveOrder(ID id) throws NotFoundItemInPortalException {
         return retrieveOrder(id.getID());
     }
 
-    public void updateOrder(OrderNative orderNative) throws NotFoundItemInDatabaseException {
-        if(!hasOrder(orderNative.getOID())) throw new NotFoundItemInDatabaseException();
+    public void updateOrder(OrderNative orderNative) throws NotFoundItemInPortalException {
+        if(!hasOrder(orderNative.getOID())) throw new NotFoundItemInPortalException();
         ordersMap.put(orderNative.getOID(), orderNative);
     }
 
-    public void updateOrder(Order order) throws NotFoundItemInDatabaseException {
+    public void updateOrder(Order order) throws NotFoundItemInPortalException {
         updateOrder(OrderNative.fromOrder(order));
     }
 
-    public void deleteOrder(String id) throws NotFoundItemInDatabaseException {
-        if(!hasOrder(id)) throw new NotFoundItemInDatabaseException();
+    public void deleteOrder(String id) throws NotFoundItemInPortalException {
+        if(!hasOrder(id)) throw new NotFoundItemInPortalException();
         ordersMap.remove(id);
     }
 
-    public void deleteOrder(ID id) throws NotFoundItemInDatabaseException {
+    public void deleteOrder(ID id) throws NotFoundItemInPortalException {
         deleteOrder(id.getID());
     }
 

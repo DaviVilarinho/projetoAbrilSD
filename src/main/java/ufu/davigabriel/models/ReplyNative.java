@@ -10,10 +10,14 @@ import java.util.Arrays;
 @ToString
 public enum ReplyNative {
     SUCESSO(0, ""),
-    DUPLICATA(400, "Item ja existe."),
+    BAD_REQUEST(400, "Bad request."),
+    NAO_LOGADO(401, "Usuario nao existe."),
     INEXISTENTE(404, "Item nao existe."),
+    DUPLICATA(422, "Item ja existe."),
     ERRO_DESCONHECIDO(500, "Falha interna."),
     ERRO_MQTT(502, "Erro no servidor Mosquitto.");
+
+
 
     private final int error;
     private final String description;

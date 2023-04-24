@@ -1,12 +1,12 @@
 package ufu.davigabriel.services;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
-import ufu.davigabriel.server.Client;
+import ufu.davigabriel.exceptions.BadRequestException;
+import ufu.davigabriel.exceptions.DuplicatePortalItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInPortalException;
+import ufu.davigabriel.exceptions.UnauthorizedUserException;
 import ufu.davigabriel.server.ID;
 import ufu.davigabriel.server.Order;
-import ufu.davigabriel.server.Product;
 
 /**
  * O Middleware e a Database fazem uso desta interface para redirecionar as atribuicoes de cada
@@ -14,7 +14,7 @@ import ufu.davigabriel.server.Product;
  * Database: realizar mudanca
  */
 public interface IOrderProxyDatabase {
-    void createOrder(Order order) throws DuplicateDatabaseItemException, MqttException;
-    void updateOrder(Order order) throws NotFoundItemInDatabaseException, MqttException;
-    void deleteOrder(ID id) throws NotFoundItemInDatabaseException, MqttException;
+    void createOrder(Order order) throws DuplicatePortalItemException, MqttException, UnauthorizedUserException, NotFoundItemInPortalException, BadRequestException;
+    void updateOrder(Order order) throws NotFoundItemInPortalException, MqttException, UnauthorizedUserException, BadRequestException;
+    void deleteOrder(ID id) throws NotFoundItemInPortalException, MqttException;
 }

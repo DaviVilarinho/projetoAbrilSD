@@ -5,8 +5,7 @@ import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.exceptions.*;
 import ufu.davigabriel.models.OrderNative;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.services.MosquittoOrderUpdaterMiddleware;
@@ -17,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 public class OrderPortalServer {
     private Server server;
-
     public static int BASE_PORTAL_SERVER_PORT = 60552;
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -80,7 +78,7 @@ public class OrderPortalServer {
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
-            } catch (DuplicateDatabaseItemException exception) {
+            } catch (PortalException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
@@ -96,7 +94,7 @@ public class OrderPortalServer {
         public void retrieveOrder(ID request, StreamObserver<Order> responseObserver) {
             try {
                 responseObserver.onNext(orderDatabaseService.retrieveOrder(request).toOrder());
-            } catch (NotFoundItemInDatabaseException exception) {
+            } catch (NotFoundItemInPortalException exception) {
                 responseObserver.onNext(OrderNative.generateEmptyOrderNative().toOrder());
             } finally {
                 responseObserver.onCompleted();
@@ -111,7 +109,7 @@ public class OrderPortalServer {
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
-            } catch (NotFoundItemInDatabaseException exception) {
+            } catch (PortalException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
@@ -131,7 +129,7 @@ public class OrderPortalServer {
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
-            } catch (NotFoundItemInDatabaseException exception) {
+            } catch (NotFoundItemInPortalException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException e) {
                 responseObserver.onNext(Reply.newBuilder()
@@ -142,19 +140,20 @@ public class OrderPortalServer {
                 responseObserver.onCompleted();
             }
         }
-//          TODO
-//        @Override
-//        public void retrieveClientOrders(ID request, StreamObserver<Order> responseObserver) {
-//            try {
-//                orderDatabaseService.retrieveClientOrders(request).forEach((order) -> {
-//                    responseObserver.onNext(order.toOrder());
-//                });
-//            } catch (NotFoundItemInDatabaseException exception) {
-//                exception.replyError(responseObserver);
-//            } finally {
-//                responseObserver.onCompleted();
-//            }
-//        }
+
+        @Override
+        public void retrieveClientOrders(ID request, StreamObserver<Order> responseObserver) {
+            try {
+                mosquittoOrderUpdaterMiddleware.authenticateClient(request.getID());
+                orderDatabaseService.retrieveClientOrders(request).forEach((order) -> {
+                    responseObserver.onNext(order.toOrder());
+                });
+            } catch (UnauthorizedUserException e) {
+                e.replyError(responseObserver);
+            } finally {
+                responseObserver.onCompleted();
+            }
+        }
     }
 
 }

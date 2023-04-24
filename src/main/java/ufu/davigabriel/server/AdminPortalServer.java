@@ -5,8 +5,8 @@ import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ufu.davigabriel.exceptions.DuplicateDatabaseItemException;
-import ufu.davigabriel.exceptions.NotFoundItemInDatabaseException;
+import ufu.davigabriel.exceptions.DuplicatePortalItemException;
+import ufu.davigabriel.exceptions.NotFoundItemInPortalException;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
@@ -87,7 +87,7 @@ public class AdminPortalServer {
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
-            } catch (DuplicateDatabaseItemException exception) {
+            } catch (DuplicatePortalItemException exception) {
                 exception.replyError(responseObserver);
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
@@ -108,7 +108,7 @@ public class AdminPortalServer {
         public void retrieveClient(ID request, StreamObserver<Client> responseObserver) {
             try {
                 responseObserver.onNext(adminDatabaseService.retrieveClient(request).toClient());
-            } catch (NotFoundItemInDatabaseException exception) {
+            } catch (NotFoundItemInPortalException exception) {
                 responseObserver.onNext(ClientNative.generateEmptyClientNative().toClient());
             } finally {
                 responseObserver.onCompleted();
@@ -128,7 +128,7 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
-            } catch (NotFoundItemInDatabaseException e) {
+            } catch (NotFoundItemInPortalException e) {
                 e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
@@ -143,7 +143,7 @@ public class AdminPortalServer {
                         .setError(ReplyNative.SUCESSO.getError())
                         .setDescription(ReplyNative.SUCESSO.getDescription())
                         .build());
-            } catch (NotFoundItemInDatabaseException notFoundItemInDatabaseException) {
+            } catch (NotFoundItemInPortalException notFoundItemInDatabaseException) {
                 notFoundItemInDatabaseException.replyError(responseObserver);
             } catch (MqttException mqttException) {
                 responseObserver.onNext(Reply.newBuilder()
@@ -168,7 +168,7 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
-            } catch (DuplicateDatabaseItemException e) {
+            } catch (DuplicatePortalItemException e) {
                 e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
@@ -182,7 +182,7 @@ public class AdminPortalServer {
         public void retrieveProduct(ID request, StreamObserver<Product> responseObserver) {
             try {
                 responseObserver.onNext(adminDatabaseService.retrieveProduct(request).toProduct());
-            } catch (NotFoundItemInDatabaseException exception) {
+            } catch (NotFoundItemInPortalException exception) {
                 responseObserver.onNext(ProductNative.generateEmptyProductNative().toProduct());
             } finally {
                 responseObserver.onCompleted();
@@ -202,7 +202,7 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
-            } catch (NotFoundItemInDatabaseException e) {
+            } catch (NotFoundItemInPortalException e) {
                 e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
@@ -222,7 +222,7 @@ public class AdminPortalServer {
                         .setError(ReplyNative.ERRO_MQTT.getError())
                         .setDescription(ReplyNative.ERRO_MQTT.getDescription())
                         .build());
-            } catch (NotFoundItemInDatabaseException e) {
+            } catch (NotFoundItemInPortalException e) {
                 e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
