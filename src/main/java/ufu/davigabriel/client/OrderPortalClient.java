@@ -13,12 +13,11 @@ import ufu.davigabriel.server.*;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 public class OrderPortalClient {
     private static final String HOST = "localhost";
     private static final int SERVER_PORT = OrderPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
-    private static final String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
+    public static final String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
     private final OrderPortalGrpc.OrderPortalBlockingStub blockingStub;
 
     public OrderPortalClient(Channel channel) {
@@ -198,7 +197,7 @@ public class OrderPortalClient {
         orderItemNative.setQuantity(scanner.nextInt());
 
         ProductNative retrievedProduct = ProductNative.fromProduct(blockingStub.retrieveProduct(ID.newBuilder().setID(orderItemNative.getPID()).build()));
-        orderItemNative.setName(retrievedProduct.getName());
+        orderItemNative.setFidelityCode(retrievedProduct.getName());
         orderItemNative.setPrice(retrievedProduct.getPrice());
 
         return orderItemNative;
