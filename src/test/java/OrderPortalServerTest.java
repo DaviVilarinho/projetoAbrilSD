@@ -18,7 +18,9 @@ import utils.RandomOrderTriple;
 import utils.RandomUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class OrderPortalServerTest {
 
@@ -35,7 +37,7 @@ public class OrderPortalServerTest {
     }
 
     @Test
-    public void shouldCreateRandomValidOrders() throws IOException, InterruptedException {
+    public void shouldCreateRandomValidOrders() throws InterruptedException {
         AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
         Thread.sleep(TOLERANCE_MS);
         OrderPortalGrpc.OrderPortalBlockingStub orderPortalBlockingStub = getOrderBlockingStub();
@@ -53,7 +55,7 @@ public class OrderPortalServerTest {
     }
 
     @Test
-    public void shouldNotAllowUnauthorized() throws IOException, InterruptedException {
+    public void shouldNotAllowUnauthorized() throws InterruptedException {
         AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
         Thread.sleep(TOLERANCE_MS);
         OrderPortalGrpc.OrderPortalBlockingStub orderPortalBlockingStub = getOrderBlockingStub();
@@ -77,7 +79,7 @@ public class OrderPortalServerTest {
     }
 
     @Test
-    public void shouldNotAllowDuplicates() throws IOException, InterruptedException {
+    public void shouldNotAllowDuplicates() throws InterruptedException {
         AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
         Thread.sleep(TOLERANCE_MS);
         OrderPortalGrpc.OrderPortalBlockingStub orderPortalBlockingStub = getOrderBlockingStub();
@@ -100,7 +102,7 @@ public class OrderPortalServerTest {
     }
 
     @Test
-    public void shouldDecreaseProductsQuantity() throws IOException, InterruptedException {
+    public void shouldDecreaseProductsQuantity() throws InterruptedException {
         AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
         Thread.sleep(TOLERANCE_MS);
         OrderPortalGrpc.OrderPortalBlockingStub orderPortalBlockingStub = getOrderBlockingStub();
@@ -115,6 +117,7 @@ public class OrderPortalServerTest {
             Thread.sleep(TOLERANCE_MS);
         }
         Assert.assertEquals(orderPortalBlockingStub.createOrder(randomOrderTriple.getRandomOrderNative().toOrder()).getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
 
         for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
             Product productAfterUpdate = adminPortalBlockingStub.retrieveProduct(ID.newBuilder().setID(productNative.getPID()).build());
@@ -132,7 +135,7 @@ public class OrderPortalServerTest {
     }
 
     @Test
-    public void shouldIncreaseProductsQuantityOnDeletion() throws IOException,
+    public void shouldIncreaseProductsQuantityOnDeletion() throws
             InterruptedException {
         AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
         Thread.sleep(TOLERANCE_MS);
@@ -148,6 +151,7 @@ public class OrderPortalServerTest {
             Thread.sleep(TOLERANCE_MS);
         }
         Assert.assertEquals(orderPortalBlockingStub.createOrder(randomOrderTriple.getRandomOrderNative().toOrder()).getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
 
         for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
             Product productAfterUpdate = adminPortalBlockingStub.retrieveProduct(ID.newBuilder().setID(productNative.getPID()).build());
@@ -164,8 +168,9 @@ public class OrderPortalServerTest {
         }
 
         Assert.assertEquals(orderPortalBlockingStub.deleteOrder(ID.newBuilder()
-                .setID(randomOrderTriple.getRandomOrderNative().getOID()).build())
+                        .setID(randomOrderTriple.getRandomOrderNative().getOID()).build())
                 .getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
 
         for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
             Product productAfterUpdate = adminPortalBlockingStub.retrieveProduct(ID.newBuilder().setID(productNative.getPID()).build());
@@ -175,10 +180,52 @@ public class OrderPortalServerTest {
 
             Assert.assertTrue(optionalOrderItemNativeThatMatchesProductNative.isPresent());
 
-            OrderItemNative orderItemNativeThatMatchesProductNative = optionalOrderItemNativeThatMatchesProductNative.get();
-
             Assert.assertEquals(ProductNative.fromProduct(productAfterUpdate).getQuantity(), productNative.getQuantity());
             Thread.sleep(TOLERANCE_MS);
+        }
+    }
+
+    @Test
+    public void shouldChangeProductsQuantityOnUpdate() throws InterruptedException {
+        AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
+        Thread.sleep(TOLERANCE_MS);
+        OrderPortalGrpc.OrderPortalBlockingStub orderPortalBlockingStub = getOrderBlockingStub();
+        Thread.sleep(TOLERANCE_MS);
+
+        RandomOrderTriple randomOrderTriple = RandomUtils.generateRandomValidOrder();
+
+        int IN_ORDER = 2;
+        int IN_PRODUCT = 3;
+        int IN_ORDER_AFTER = 1;
+
+        randomOrderTriple.getRandomOrderNative().setProducts(randomOrderTriple.getRandomOrderNative().getProducts().stream().map(orderItemNative -> {
+            orderItemNative.setQuantity(IN_ORDER);
+            return orderItemNative;
+        }).collect(Collectors.toCollection(ArrayList::new)));
+
+        Assert.assertEquals(adminPortalBlockingStub.createClient(randomOrderTriple.getRandomClientNative().toClient()).getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
+        for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
+            productNative.setQuantity(IN_PRODUCT);
+            Assert.assertEquals(adminPortalBlockingStub.createProduct(productNative.toProduct()).getError(), ReplyNative.SUCESSO.getError());
+            Thread.sleep(TOLERANCE_MS);
+        }
+        Assert.assertEquals(orderPortalBlockingStub.createOrder(randomOrderTriple.getRandomOrderNative().toOrder()).getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
+
+        randomOrderTriple.getRandomOrderNative().setProducts(randomOrderTriple.getRandomOrderNative().getProducts().stream().map(orderItemNative -> {
+            orderItemNative.setQuantity(IN_ORDER_AFTER);
+            return orderItemNative;
+        }).collect(Collectors.toCollection(ArrayList::new)));
+
+        Assert.assertEquals(orderPortalBlockingStub.updateOrder(randomOrderTriple.getRandomOrderNative().toOrder()).getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
+
+        for (ProductNative productNative : randomOrderTriple.getRandomProductsNative()) {
+            Product productAfterUpdate = adminPortalBlockingStub.retrieveProduct(ID.newBuilder().setID(productNative.getPID()).build());
+            Assert.assertNotEquals(productAfterUpdate.getPID(), "0");
+
+            Assert.assertEquals(ProductNative.fromProduct(productAfterUpdate).getQuantity(), IN_PRODUCT - IN_ORDER_AFTER);
         }
     }
 }
