@@ -17,7 +17,6 @@ import ufu.davigabriel.server.Product;
 import utils.RandomOrderTriple;
 import utils.RandomUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -135,8 +134,7 @@ public class OrderPortalServerTest {
     }
 
     @Test
-    public void shouldIncreaseProductsQuantityOnDeletion() throws
-            InterruptedException {
+    public void shouldIncreaseProductsQuantityOnDeletion() throws InterruptedException {
         AdminPortalGrpc.AdminPortalBlockingStub adminPortalBlockingStub = getAdminBlockingStub();
         Thread.sleep(TOLERANCE_MS);
         OrderPortalGrpc.OrderPortalBlockingStub orderPortalBlockingStub = getOrderBlockingStub();

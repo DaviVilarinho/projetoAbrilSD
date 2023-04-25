@@ -7,7 +7,6 @@ import io.grpc.ManagedChannel;
 import ufu.davigabriel.Main;
 import ufu.davigabriel.models.OrderItemNative;
 import ufu.davigabriel.models.OrderNative;
-import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.server.*;
 
@@ -55,7 +54,8 @@ public class OrderPortalClient {
                 System.out.print("Escolha: ");
                 try {
                     orderPortalOption = OrderPortalOption.valueOf(scanner.nextLine());
-                } catch (NullPointerException | IllegalArgumentException exception) {
+                } catch (NullPointerException |
+                         IllegalArgumentException exception) {
                     System.out.println("Por favor, escolha outra opcao.");
                     orderPortalOption = OrderPortalOption.NOOP;
                 }
@@ -68,15 +68,16 @@ public class OrderPortalClient {
 
                         ArrayList<OrderItemNative> addedProducts = new ArrayList<>();
                         String option = "z";
-                        while (!"n".equals(option)){
+                        while (!"n".equals(option)) {
                             System.out.print("Escreva se deseja adicionar um produto ao pedido (y/n): ");
                             option = scanner.nextLine().strip().toLowerCase();
-                            if("y".equals(option))
-                                addedProducts.add(orderPortalClient.addProductToOrder(connectionBlockingStub, scanner));
+                            if ("y".equals(option))
+                                addedProducts.add(orderPortalClient.addProductToOrder(scanner));
                         }
 
                         ReplyNative response = createOrder(orderPortalClient.blockingStub, OrderNative.builder().OID(orderId).CID(loggedClientId).products(addedProducts).build());
-                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        if (response.getError() != 0)
+                            System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("PEDIDO INSERIDO");
                     }
                     case BUSCAR_PEDIDO -> {
@@ -85,7 +86,7 @@ public class OrderPortalClient {
                         foundOrder.ifPresentOrElse(orderNative -> {
                             System.out.println("PEDIDO ENCONTRADO");
                             double totalPrice = 0;
-                            for(OrderItemNative item : orderNative.getProducts()){
+                            for (OrderItemNative item : orderNative.getProducts()) {
                                 System.out.println(item);
                                 totalPrice += item.getPrice();
                             }
@@ -101,18 +102,20 @@ public class OrderPortalClient {
                         do {
                             System.out.print("Escreva se deseja adicionar novo produto ao pedido (y/n): ");
                             option = scanner.next().toLowerCase().charAt(0);
-                            if(option == 'y')
-                                addedProducts.add(orderPortalClient.addProductToOrder(connectionBlockingStub, scanner));
-                        }while (option != 'n');
+                            if (option == 'y')
+                                addedProducts.add(orderPortalClient.addProductToOrder(scanner));
+                        } while (option != 'n');
 
                         ReplyNative response = createOrder(orderPortalClient.blockingStub, OrderNative.builder().OID(oidAMudar).CID(loggedClientId).products(addedProducts).build());
-                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        if (response.getError() != 0)
+                            System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("PEDIDO ATUALIZADO");
                     }
                     case REMOVER_PEDIDO -> {
                         System.out.print("Escreva o ID do pedido a ser removido: ");
                         ReplyNative response = removeOrder(orderPortalClient.blockingStub, scanner.nextLine());
-                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        if (response.getError() != 0)
+                            System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("PEDIDO REMOVIDO");
                     }
                     case BUSCAR_PEDIDOS_POR_CLIENTE -> {
@@ -121,7 +124,6 @@ public class OrderPortalClient {
                         clientOrders.forEach(orderNative -> {
                             System.out.println(orderNative.getOID());
                         });
-
                     }
                     default -> {
                         System.out.println("Encerrando o Portal de Pedidos.");
@@ -166,7 +168,7 @@ public class OrderPortalClient {
     }
 
 
-    static private ArrayList<OrderNative> retrieveClientOrders(OrderPortalGrpc.OrderPortalBlockingStub blockingStub, String clientId){
+    static private ArrayList<OrderNative> retrieveClientOrders(OrderPortalGrpc.OrderPortalBlockingStub blockingStub, String clientId) {
         ArrayList<OrderNative> clientOrders = new ArrayList<>();
         blockingStub.retrieveClientOrders(ID.newBuilder().setID(clientId).build()).forEachRemaining(clientOrder -> clientOrders.add(OrderNative.fromOrder(clientOrder)));
         return clientOrders;
@@ -188,17 +190,19 @@ public class OrderPortalClient {
         return null;
     }
 
-    private OrderItemNative addProductToOrder(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, Scanner scanner) {
+    private OrderItemNative addProductToOrder(Scanner scanner) {
         OrderItemNative orderItemNative = OrderItemNative.builder().build();
         System.out.print("Escreva o ID do produto que deseja adicionar: ");
         orderItemNative.setPID(scanner.nextLine());
 
-        System.out.print("Escreva a quantidade desejada do mesmo: ");
+        System.out.print("Escreva a quantidade desejada do produto: ");
         orderItemNative.setQuantity(scanner.nextInt());
 
-        ProductNative retrievedProduct = ProductNative.fromProduct(blockingStub.retrieveProduct(ID.newBuilder().setID(orderItemNative.getPID()).build()));
-        orderItemNative.setFidelityCode(retrievedProduct.getName());
-        orderItemNative.setPrice(retrievedProduct.getPrice());
+        System.out.print("Escreva o preco a ser pago pelo produto: ");
+        orderItemNative.setPrice(scanner.nextDouble());
+
+        System.out.print("Escreva o codigo de fidelidade: ");
+        orderItemNative.setFidelityCode(scanner.nextLine());
 
         return orderItemNative;
     }
