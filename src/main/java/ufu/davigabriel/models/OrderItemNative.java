@@ -11,7 +11,16 @@ import lombok.ToString;
 @ToString
 public class OrderItemNative {
     private String PID;
-    private String name;
+    private String fidelityCode;
     private int quantity;
     private double price;
+
+    public static OrderItemNative convertProductNative(ProductNative productNative, String fidelityCode, int quantity, double price) {
+        return OrderItemNative.builder()
+                .PID(productNative.getPID())
+                .fidelityCode(fidelityCode)
+                .quantity(quantity)
+                .price(price)
+            .build();
+    }
 }

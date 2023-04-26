@@ -4,6 +4,8 @@ import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
+import lombok.Getter;
+import lombok.Setter;
 import ufu.davigabriel.Main;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
@@ -14,10 +16,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AdminPortalClient {
-    private static String HOST = "localhost";
-    private static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
-    private static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
-
+    public static String HOST = "localhost";
+    public static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
+    public static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
     private final AdminPortalGrpc.AdminPortalBlockingStub blockingStub;
 
     public AdminPortalClient(Channel channel) {
@@ -53,9 +54,9 @@ public class AdminPortalClient {
                 switch (adminPortalOption) {
                     case NOOP -> System.out.println("Nada a ser feito.");
                     case CRIAR_CLIENTE -> {
-                        System.out.print("Escreva o novo nome do cliente: ");
+                        System.out.print("Escreva o nome do cliente: ");
                         String name = scanner.nextLine();
-                        System.out.print("Escreva o Novo zipCode do cliente: ");
+                        System.out.print("Escreva o zipCode do cliente: ");
                         String zipCode = scanner.nextLine();
 
                         String cid = geraId(name);
@@ -76,9 +77,9 @@ public class AdminPortalClient {
                         System.out.print("Escreva o ID do cliente a mudar: ");
                         String cidAMudar = scanner.nextLine();
 
-                        System.out.print("Novo nome do cliente: ");
+                        System.out.print("Escreva o novo nome do cliente: ");
                         String name = scanner.nextLine();
-                        System.out.print("Novo zipCode do cliente: ");
+                        System.out.print("Escreva o novo zipCode do cliente: ");
                         String zipCode = scanner.nextLine();
 
                         ReplyNative response = updateClient(adminPortalClient.blockingStub, ClientNative.builder().CID(cidAMudar).name(name).zipCode(zipCode).build());
@@ -104,7 +105,7 @@ public class AdminPortalClient {
                             int quantity = Integer.parseInt(scanner.nextLine());
 
                             String productId = geraId(name);
-                            System.out.println("ID A ser usado nele: " + productId);
+                            System.out.println("ID a ser usado nele: " + productId);
 
                             ReplyNative response = createProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(productId).name(name).description(description).price(price).quantity(quantity).build());
                             if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());

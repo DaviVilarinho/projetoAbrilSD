@@ -3,9 +3,9 @@ package ufu.davigabriel.exceptions;
 import io.grpc.stub.StreamObserver;
 import ufu.davigabriel.models.ReplyNative;
 
-public class NotFoundItemInDatabaseException extends DatabaseException {
+public class BadRequestException extends PortalException {
     @Override
     public void replyError(StreamObserver responseObserver) {
-        replyError(responseObserver, ReplyNative.INEXISTENTE);
+        super.replyError(responseObserver, ReplyNative.BAD_REQUEST);
     }
 }

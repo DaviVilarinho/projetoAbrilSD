@@ -4,7 +4,7 @@ import io.grpc.stub.StreamObserver;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.server.Reply;
 
-public abstract class DatabaseException extends Exception {
+public abstract class PortalException extends Exception {
     public void replyError(StreamObserver responseObserver) {
         this.replyError(responseObserver, ReplyNative.ERRO_DESCONHECIDO);
     }

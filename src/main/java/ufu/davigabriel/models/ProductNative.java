@@ -9,7 +9,7 @@ import ufu.davigabriel.server.Product;
 
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @ToString
 public class ProductNative {
     private String PID;
@@ -21,7 +21,7 @@ public class ProductNative {
     public Product toProduct() {
         return Product.newBuilder()
                 .setPID(getPID())
-                .setData(new Gson().toJson(this))
+                .setData(new Gson().toJson(this.toBuilder().build()))
                 .build();
     }
 

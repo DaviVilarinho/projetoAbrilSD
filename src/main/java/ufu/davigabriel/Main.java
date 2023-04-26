@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Main {
-    public static int PORTAL_SERVERS = 3;
+    public static int PORTAL_SERVERS = 2;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException{
         List<ProcessBuilder> adminPortalServers = IntStream.range(0, PORTAL_SERVERS)
                 .mapToObj(value -> new ProcessBuilder(
                         "./gradlew",
