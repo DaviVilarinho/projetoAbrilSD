@@ -1,6 +1,7 @@
 package ufu.davigabriel.models;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.JsonAdapter;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,5 +36,13 @@ public class OrderNative {
                 .OID("0")
                 .CID("")
                 .build();
+    }
+
+    public static OrderNative fromJson(String json) {
+        return new Gson().fromJson(json, OrderNative.class);
+    }
+
+    public String toJson() {
+        return new Gson().toJson(this);
     }
 }

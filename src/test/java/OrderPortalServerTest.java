@@ -21,11 +21,16 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/*
+Aqui ocorre
+
+java.lang.RuntimeException: ManagedChannel allocation site
+
+mas pode ignorar
+ */
 public class OrderPortalServerTest {
 
     public static int TOLERANCE_MS = 1000;
-    @Rule
-    public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
     public OrderPortalGrpc.OrderPortalBlockingStub getOrderBlockingStub() {
         return OrderPortalGrpc.newBlockingStub(Grpc.newChannelBuilder(OrderPortalClient.TARGET_SERVER, InsecureChannelCredentials.create()).build());

@@ -22,8 +22,8 @@ import java.util.HashMap;
  */
 public class AdminDatabaseService implements IAdminProxyDatabase {
     private static AdminDatabaseService instance;
-    private HashMap<String, ProductNative> productsMap;
-    private HashMap<String, ClientNative> clientsMap;
+    private HashMap<String, String> productsMap;
+    private HashMap<String, String> clientsMap;
 
     private AdminDatabaseService() {
         if (instance == null) {
@@ -55,7 +55,7 @@ public class AdminDatabaseService implements IAdminProxyDatabase {
         if (hasClient(clientNative.getCID()))
             throw new DuplicatePortalItemException();
 
-        clientsMap.putIfAbsent(clientNative.getCID(), clientNative);
+        clientsMap.putIfAbsent(clientNative.getCID(), clientNative.toJson());
     }
 
     public ClientNative retrieveClient(ID id) throws NotFoundItemInPortalException {
@@ -64,7 +64,7 @@ public class AdminDatabaseService implements IAdminProxyDatabase {
 
     public ClientNative retrieveClient(String id) throws NotFoundItemInPortalException {
         if (!hasClient(id)) throw new NotFoundItemInPortalException();
-        return clientsMap.get(id);
+        return ClientNative.fromJson(clientsMap.get(id));
     }
 
     public void updateClient(Client client) throws NotFoundItemInPortalException {
@@ -73,7 +73,7 @@ public class AdminDatabaseService implements IAdminProxyDatabase {
 
     public void updateClient(ClientNative clientNative) throws NotFoundItemInPortalException {
         if (!hasClient(clientNative.getCID())) throw new NotFoundItemInPortalException();
-        clientsMap.put(clientNative.getCID(), clientNative);
+        clientsMap.put(clientNative.getCID(), clientNative.toJson());
     }
 
     public void deleteClient(ID id) throws NotFoundItemInPortalException {
@@ -96,7 +96,7 @@ public class AdminDatabaseService implements IAdminProxyDatabase {
         if (hasProduct(productNative.getPID()))
             throw new DuplicatePortalItemException();
 
-        productsMap.putIfAbsent(productNative.getPID(), productNative);
+        productsMap.putIfAbsent(productNative.getPID(), productNative.toJson());
     }
 
     public ProductNative retrieveProduct(ID id) throws NotFoundItemInPortalException {
@@ -105,16 +105,16 @@ public class AdminDatabaseService implements IAdminProxyDatabase {
 
     public ProductNative retrieveProduct(String id) throws NotFoundItemInPortalException {
         if (!hasProduct(id)) throw new NotFoundItemInPortalException();
-        return productsMap.get(id);
+        return ProductNative.fromJson(productsMap.get(id));
     }
 
     public void updateProduct(Product product) throws NotFoundItemInPortalException {
         updateProduct(ProductNative.fromProduct(product));
     }
 
-    public void updateProduct(ProductNative ProductNative) throws NotFoundItemInPortalException {
-        if (!hasProduct(ProductNative.getPID())) throw new NotFoundItemInPortalException();
-        productsMap.put(ProductNative.getPID(), ProductNative);
+    public void updateProduct(ProductNative productNative) throws NotFoundItemInPortalException {
+        if (!hasProduct(productNative.getPID())) throw new NotFoundItemInPortalException();
+        productsMap.put(productNative.getPID(), productNative.toJson());
     }
 
     public void deleteProduct(ID id) throws NotFoundItemInPortalException {
