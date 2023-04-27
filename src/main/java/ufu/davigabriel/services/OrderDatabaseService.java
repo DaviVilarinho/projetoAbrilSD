@@ -18,7 +18,7 @@ import java.util.HashMap;
  */
 public class OrderDatabaseService implements IOrderProxyDatabase {
     private static OrderDatabaseService instance;
-    private HashMap<String, OrderNative> ordersMap;
+    private HashMap<String, String> ordersMap;
 
     private OrderDatabaseService() {
         if (instance == null) {
@@ -39,7 +39,7 @@ public class OrderDatabaseService implements IOrderProxyDatabase {
 
     public void createOrder(OrderNative orderNative) throws DuplicatePortalItemException {
         if (hasOrder(orderNative.getOID())) throw new DuplicatePortalItemException();
-        ordersMap.put(orderNative.getOID(), orderNative);
+        ordersMap.put(orderNative.getOID(), orderNative.toJson());
     }
 
     public void createOrder(Order order) throws DuplicatePortalItemException {
@@ -48,7 +48,7 @@ public class OrderDatabaseService implements IOrderProxyDatabase {
 
     public OrderNative retrieveOrder(String id) throws NotFoundItemInPortalException {
         if (!hasOrder(id)) throw new NotFoundItemInPortalException();
-        return ordersMap.get(id);
+        return OrderNative.fromJson(ordersMap.get(id));
     }
 
     public OrderNative retrieveOrder(ID id) throws NotFoundItemInPortalException {
@@ -57,7 +57,7 @@ public class OrderDatabaseService implements IOrderProxyDatabase {
 
     public void updateOrder(OrderNative orderNative) throws NotFoundItemInPortalException {
         if(!hasOrder(orderNative.getOID())) throw new NotFoundItemInPortalException();
-        ordersMap.put(orderNative.getOID(), orderNative);
+        ordersMap.put(orderNative.getOID(), orderNative.toJson());
     }
 
     public void updateOrder(Order order) throws NotFoundItemInPortalException {
@@ -75,7 +75,8 @@ public class OrderDatabaseService implements IOrderProxyDatabase {
 
     public ArrayList<OrderNative> retrieveClientOrders(ID id) {
         ArrayList<OrderNative> arrayList = new ArrayList<>();
-        ordersMap.forEach((key, order) -> {
+        ordersMap.forEach((key, orderJson) -> {
+            OrderNative order = OrderNative.fromJson(orderJson);
             if(order.getCID().equals(id.getID()))
                 arrayList.add(order);
         });

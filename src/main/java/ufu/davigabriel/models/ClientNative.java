@@ -35,4 +35,12 @@ public class ClientNative {
                 .zipCode("")
                 .build();
     }
+
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
+
+    public static ClientNative fromJson(String json) {
+        return new Gson().fromJson(json, ClientNative.class);
+    }
 }

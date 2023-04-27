@@ -80,27 +80,35 @@ public class AdminPortalServerTest {
         Reply reply = blockingStub.createProduct(productThatShouldBeCreated);
         Thread.sleep(TOLERANCE_MS);
         Product product = blockingStub.retrieveProduct(ID.newBuilder().setID(productThatShouldBeCreated.getPID()).build());
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertEquals(productThatShouldBeCreated, product);
         Assert.assertNotEquals(productThatShouldNotBeCreated, product);
         product = blockingStub.retrieveProduct(ID.newBuilder().setID(productThatShouldNotBeCreated.getPID()).build());
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertNotEquals(productThatShouldNotBeCreated, product);
         productThatShouldBeCreated = productThatShouldNotBeCreated;
         reply = blockingStub.createProduct(productThatShouldBeCreated);
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertNotEquals(productThatShouldBeCreated, product);
         product = blockingStub.retrieveProduct(ID.newBuilder().setID(productThatShouldBeCreated.getPID()).build());
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertEquals(productThatShouldBeCreated, product);
 
         productThatShouldNotBeCreated = RandomUtils.generateRandomProduct().toProduct();
         ProductNative productNativeThatShouldBeUpdated = ProductNative.fromProduct(productThatShouldBeCreated);
         productNativeThatShouldBeUpdated.setDescription("dkjshabuipokejxm");
         reply = blockingStub.updateProduct(productNativeThatShouldBeUpdated.toProduct());
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
         product = blockingStub.retrieveProduct(ID.newBuilder().setID(productNativeThatShouldBeUpdated.getPID()).build());
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertEquals(productNativeThatShouldBeUpdated.toProduct(), product);
 
         reply = blockingStub.deleteProduct(ID.newBuilder().setID(productNativeThatShouldBeUpdated.getPID()).build());
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
         product = blockingStub.retrieveProduct(ID.newBuilder().setID(productNativeThatShouldBeUpdated.getPID()).build());
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertNotEquals(productNativeThatShouldBeUpdated.toProduct(), product);
     }
 
@@ -134,6 +142,7 @@ public class AdminPortalServerTest {
         ClientNative anotherClientNativeThatShouldBeCreated = RandomUtils.generateRandomClient();
         Client anotherClientThatShouldBeCreated = anotherClientNativeThatShouldBeCreated.toClient();
         reply = adminPortalBlockingStubs.get(0).createClient(anotherClientThatShouldBeCreated);
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
         Thread.sleep(TOLERANCE_MS);
         adminPortalBlockingStubs.forEach(blockingStub -> {
@@ -145,18 +154,23 @@ public class AdminPortalServerTest {
                 .build()
                 .toClient();
         reply = adminPortalBlockingStubs.get(0).updateClient(anotherClientThatShouldBeUpdated);
-        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
         Thread.sleep(TOLERANCE_MS);
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeUpdated.getCID()).build());
+            try {
+                Thread.sleep(TOLERANCE_MS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             Assert.assertEquals(client, anotherClientThatShouldBeUpdated);
         });
         reply = adminPortalBlockingStubs.get(new Random().nextInt(adminPortalBlockingStubs.size()))
                 .deleteClient(ID.newBuilder()
                         .setID(anotherClientThatShouldBeUpdated.getCID())
                         .build());
-        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
         Thread.sleep(TOLERANCE_MS);
+        Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
         adminPortalBlockingStubs.forEach(blockingStub -> {
             Client client = blockingStub.retrieveClient(ID.newBuilder().setID(anotherClientThatShouldBeUpdated.getCID()).build());
             Assert.assertEquals(client.getCID(), "0");

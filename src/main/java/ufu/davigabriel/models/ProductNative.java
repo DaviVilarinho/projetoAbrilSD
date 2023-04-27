@@ -38,6 +38,14 @@ public class ProductNative {
                 .description("")
                 .build();
     }
+
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
+
+    public static ProductNative fromJson(String json) {
+        return new Gson().fromJson(json, ProductNative.class);
+    }
 }
 
 
