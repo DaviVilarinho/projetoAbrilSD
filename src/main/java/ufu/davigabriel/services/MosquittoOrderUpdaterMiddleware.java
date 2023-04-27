@@ -79,6 +79,8 @@ public class MosquittoOrderUpdaterMiddleware extends MosquittoUpdaterMiddleware 
     }
 
     public void validateOrderProducts(ArrayList<OrderItemNative> products) throws NotFoundItemInPortalException, BadRequestException {
+        if (products.isEmpty())
+            throw new BadRequestException();
         for (OrderItemNative product : products) {
             validateProduct(product.getPID(), product.getQuantity());
         }

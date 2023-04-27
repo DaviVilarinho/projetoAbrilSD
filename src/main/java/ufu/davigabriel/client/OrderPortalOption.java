@@ -9,6 +9,6 @@ public enum OrderPortalOption {
     BUSCAR_PEDIDO,
     MUDAR_PEDIDO,
     REMOVER_PEDIDO,
-    BUSCAR_PEDIDOS_POR_CLIENTE,
+    MEUS_PEDIDOS,
     SAIR
 }

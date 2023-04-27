@@ -21,6 +21,8 @@ public class AdminPortalClient {
     public static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
     private final AdminPortalGrpc.AdminPortalBlockingStub blockingStub;
 
+    private static final Scanner scanner = new Scanner(System.in);
+
     public AdminPortalClient(Channel channel) {
         this.blockingStub = AdminPortalGrpc.newBlockingStub(channel);
     }
@@ -37,7 +39,6 @@ public class AdminPortalClient {
             System.out.println("Conectado com server " + TARGET_SERVER);
 
             AdminPortalOption adminPortalOption = AdminPortalOption.NOOP;
-            Scanner scanner = new Scanner(System.in);
             while (!AdminPortalOption.SAIR.equals(adminPortalOption)) {
                 System.out.println("^^--__");
                 System.out.println("Opcoes:");
@@ -46,7 +47,8 @@ public class AdminPortalClient {
                 System.out.print("Escolha: ");
                 try {
                     adminPortalOption = AdminPortalOption.valueOf(scanner.nextLine());
-                } catch (NullPointerException | IllegalArgumentException exception) {
+                } catch (NullPointerException |
+                         IllegalArgumentException exception) {
                     System.out.println("Por favor, escolha outra opcao.");
                     adminPortalOption = AdminPortalOption.NOOP;
                 }
@@ -62,7 +64,8 @@ public class AdminPortalClient {
                         String cid = geraId(name);
                         System.out.println("Escolhendo ID: " + cid);
                         ReplyNative response = createClient(adminPortalClient.blockingStub, ClientNative.builder().CID(cid).name(name).zipCode(zipCode).build());
-                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        if (response.getError() != 0)
+                            System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("CLIENTE INSERIDO");
                     }
                     case BUSCAR_CLIENTE -> {
@@ -83,14 +86,16 @@ public class AdminPortalClient {
                         String zipCode = scanner.nextLine();
 
                         ReplyNative response = updateClient(adminPortalClient.blockingStub, ClientNative.builder().CID(cidAMudar).name(name).zipCode(zipCode).build());
-                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        if (response.getError() != 0)
+                            System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("CLIENTE ALTERADO");
                     }
                     case REMOVER_CLIENTE -> {
                         System.out.print("Escreva o ID do cliente: ");
 
                         ReplyNative response = removeClient(adminPortalClient.blockingStub, scanner.nextLine());
-                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        if (response.getError() != 0)
+                            System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("CLIENTE REMOVIDO");
                     }
                     case CRIAR_PRODUTO -> {
@@ -108,9 +113,11 @@ public class AdminPortalClient {
                             System.out.println("ID a ser usado nele: " + productId);
 
                             ReplyNative response = createProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(productId).name(name).description(description).price(price).quantity(quantity).build());
-                            if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                            if (response.getError() != 0)
+                                System.out.println("ERRO: " + response.getDescription());
                             else System.out.println("CLIENTE INSERIDO");
-                        } catch (NullPointerException | NumberFormatException formatException) {
+                        } catch (NullPointerException |
+                                 NumberFormatException formatException) {
                             System.out.println("Este produto e invalido e nao sera inserido");
                         }
                     }
@@ -130,15 +137,18 @@ public class AdminPortalClient {
                         System.out.print("Escreva uma descricao do produto: ");
                         String description = scanner.nextLine();
                         try {
-                            System.out.print("Escreva o preco do produto");
+                            System.out.print("Escreva o preco do produto: ");
                             double price = Double.parseDouble(scanner.nextLine());
-                            System.out.print("Escreva a quantidade do produto");
+                            System.out.print("Escreva a quantidade do " +
+                                    "produto: ");
                             int quantity = Integer.parseInt(scanner.nextLine());
 
                             ReplyNative response = updateProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(targetProductId).name(name).description(description).price(price).quantity(quantity).build());
-                            if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                            if (response.getError() != 0)
+                                System.out.println("ERRO: " + response.getDescription());
                             else System.out.println("PRODUTO ATUALIZADO");
-                        } catch (NullPointerException | NumberFormatException formatException) {
+                        } catch (NullPointerException |
+                                 NumberFormatException formatException) {
                             System.out.println("Este produto e invalido e nao sera atualizado");
                         }
                     }
@@ -146,7 +156,8 @@ public class AdminPortalClient {
                         System.out.print("Escreva o ID do produto: ");
 
                         ReplyNative response = removeProduct(adminPortalClient.blockingStub, scanner.nextLine());
-                        if (response.getError() != 0) System.out.println("ERRO: " + response.getDescription());
+                        if (response.getError() != 0)
+                            System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("PRODUTO REMOVIDO");
                     }
                     default -> {
@@ -161,6 +172,7 @@ public class AdminPortalClient {
                 }
             }
         } finally {
+            scanner.close();
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
     }

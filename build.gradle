@@ -50,6 +50,10 @@ dependencies {
     testImplementation("org.mockito:mockito-core:3.4.0")
 }
 
+run {
+    standardInput = System.in
+}
+
 tasks.test {
     useJUnitPlatform()
 }
