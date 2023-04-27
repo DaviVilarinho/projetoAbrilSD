@@ -148,7 +148,7 @@ public class OrderPortalServer {
                 orderDatabaseService.retrieveClientOrders(request).forEach((order) -> {
                     responseObserver.onNext(order.toOrder());
                 });
-            } catch (UnauthorizedUserException e) {
+            } catch (PortalException e) {
                 e.replyError(responseObserver);
             } finally {
                 responseObserver.onCompleted();
