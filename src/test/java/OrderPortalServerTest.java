@@ -1,8 +1,6 @@
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
-import io.grpc.testing.GrpcCleanupRule;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 import ufu.davigabriel.client.AdminPortalClient;
 import ufu.davigabriel.client.OrderPortalClient;
@@ -26,7 +24,13 @@ Aqui ocorre
 
 java.lang.RuntimeException: ManagedChannel allocation site
 
-mas pode ignorar
+mas pode ignorar.
+ */
+
+/*
+Para executar estes teste, basta executar o mosquitto e o arquivo "servers_start
+.sh". Isso se deve ao fato de que as funcionalidades presentes no
+OrderPortalServer dependem, em partes, das funcionalidades do AdminPortalServer.
  */
 public class OrderPortalServerTest {
 

@@ -20,6 +20,10 @@ import java.util.stream.Collectors;
  */
 public class OrderDatabaseService implements IOrderProxyDatabase {
     private static OrderDatabaseService instance;
+    /*
+    O esquema de dados no ordersMap ocorre da seguinte maneira: String (ID) ->
+    String (JSON) representando uma order.
+    */
     private HashMap<String, String> ordersMap;
     private HashMap<String, ArrayList<String>> clientOrdersMap;
     /*

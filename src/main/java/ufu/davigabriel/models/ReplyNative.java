@@ -17,8 +17,6 @@ public enum ReplyNative {
     ERRO_DESCONHECIDO(500, "Falha interna."),
     ERRO_MQTT(502, "Erro no servidor Mosquitto.");
 
-
-
     private final int error;
     private final String description;
 

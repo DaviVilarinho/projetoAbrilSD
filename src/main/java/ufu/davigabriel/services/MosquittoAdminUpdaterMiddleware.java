@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import org.eclipse.paho.client.mqttv3.*;
 import ufu.davigabriel.exceptions.DuplicatePortalItemException;
 import ufu.davigabriel.exceptions.NotFoundItemInPortalException;
+import ufu.davigabriel.models.ClientNative;
+import ufu.davigabriel.models.ProductNative;
 import ufu.davigabriel.server.Client;
 import ufu.davigabriel.server.ID;
 import ufu.davigabriel.server.Product;

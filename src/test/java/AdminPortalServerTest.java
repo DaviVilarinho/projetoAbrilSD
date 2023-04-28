@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+/*
+Para executar estes testes, basta executar o Mosquitto em um terminal.
+ */
 public class AdminPortalServerTest {
     @Rule
     public final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();

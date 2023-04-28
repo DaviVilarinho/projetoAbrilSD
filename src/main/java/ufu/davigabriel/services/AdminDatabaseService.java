@@ -22,6 +22,12 @@ import java.util.HashMap;
  */
 public class AdminDatabaseService implements IAdminProxyDatabase {
     private static AdminDatabaseService instance;
+    /*
+    O esquema de dados nos Hash Maps abaixo (productsMap e clientsMap) ocorre
+     da seguinte maneira:
+    String (ID) -> String (JSON) representando, respectivamente, um product e
+     um client.
+    */
     private HashMap<String, String> productsMap;
     private HashMap<String, String> clientsMap;
 

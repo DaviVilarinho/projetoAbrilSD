@@ -46,7 +46,7 @@ public class OrderPortalClient {
                 System.out.println("Tentativas esgotadas!");
                 orderPortalOption = OrderPortalOption.SAIR;
             }
-            System.out.println("Login efetuado com sucesso!");
+
             while (!OrderPortalOption.SAIR.equals(orderPortalOption)) {
                 System.out.println("^^--__");
                 System.out.println("Opcoes:");
@@ -192,9 +192,10 @@ public class OrderPortalClient {
         do {
             System.out.print("Escreva o ID do cliente: ");
             String clientId = scanner.nextLine();
-            if (!"0".equals(blockingStub.retrieveClient(ID.newBuilder().setID(clientId).build()).getCID()))
+            if (!"0".equals(blockingStub.retrieveClient(ID.newBuilder().setID(clientId).build()).getCID())) {
+                System.out.println("Login efetuado com sucesso!");
                 return clientId;
-
+            }
             System.out.println("ID invalido. " + --attempts + " tentativas restantes.");
         } while (attempts > 0);
 

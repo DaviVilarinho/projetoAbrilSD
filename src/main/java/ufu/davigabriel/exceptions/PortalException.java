@@ -1,10 +1,16 @@
 package ufu.davigabriel.exceptions;
 
 import io.grpc.stub.StreamObserver;
+import lombok.NoArgsConstructor;
 import ufu.davigabriel.models.ReplyNative;
 import ufu.davigabriel.server.Reply;
 
+@NoArgsConstructor
 public abstract class PortalException extends Exception {
+    public PortalException(String message) {
+        super(message);
+    }
+
     public void replyError(StreamObserver responseObserver) {
         this.replyError(responseObserver, ReplyNative.ERRO_DESCONHECIDO);
     }
@@ -12,7 +18,7 @@ public abstract class PortalException extends Exception {
     public Reply getErrorReply(ReplyNative replyNative) {
         return Reply.newBuilder()
                 .setError(replyNative.getError())
-                .setDescription(replyNative.getDescription())
+                .setDescription(replyNative.getDescription() + this.getMessage())
                 .build();
     }
 

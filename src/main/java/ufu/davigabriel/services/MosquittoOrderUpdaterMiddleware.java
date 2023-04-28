@@ -70,20 +70,20 @@ public class MosquittoOrderUpdaterMiddleware extends MosquittoUpdaterMiddleware 
         super.getMqttClient().publish(MosquittoTopics.ORDER_DELETION_TOPIC.name(), new MqttMessage(id.toByteArray()));
     }
 
-    public void validateProduct(String id, int quantityRequest) throws NotFoundItemInPortalException, BadRequestException {
+    public void validateProductInOrder(String id, int quantityRequest) throws NotFoundItemInPortalException, BadRequestException {
         ProductNative productNative = ProductNative.fromProduct(connectionBlockingStub.retrieveProduct(ID.newBuilder().setID(id).build()));
         if("0".equals(productNative.getPID()))
             throw new NotFoundItemInPortalException();
 
         if(productNative.getQuantity() <= 0 || productNative.getQuantity() < quantityRequest)
-            throw new BadRequestException();
+            throw new BadRequestException("Quantidade de produto invalida.");
     }
 
     public void validateOrderProducts(ArrayList<OrderItemNative> products) throws NotFoundItemInPortalException, BadRequestException {
         if (products.isEmpty())
-            throw new BadRequestException();
+            throw new BadRequestException("Produto vazio.");
         for (OrderItemNative product : products) {
-            validateProduct(product.getPID(), product.getQuantity());
+            validateProductInOrder(product.getPID(), product.getQuantity());
         }
     }
 
@@ -105,7 +105,7 @@ public class MosquittoOrderUpdaterMiddleware extends MosquittoUpdaterMiddleware 
         OrderNative orderNative = validateOrder(order);
         for (OrderItemNative product : orderNative.getProducts()) {
             if (product.getQuantity() == 0)
-                throw new BadRequestException();
+                throw new BadRequestException("Produto com quantidade 0.");
         }
         publishOrderChange(order, MosquittoTopics.ORDER_CREATION_TOPIC);
         orderNative.getProducts().forEach(item -> {
@@ -113,6 +113,17 @@ public class MosquittoOrderUpdaterMiddleware extends MosquittoUpdaterMiddleware 
         });
     }
 
+    /*
+    Uma vez que, ao atualizar um pedido, é possível que haja
+    diminuição/aumento de quantidade de produtos com mesmo PID, foi
+    implementado um método, por meio de um hash map auxiliar, que contabiliza
+     todas as operações em um único valor e, após isso, realiza apenas uma
+     correção de quantidade por produto.
+
+     Ex.: OrderAntiga, Produto X com QTD = 5 | OrderAtualizada, Produto X com
+      QTD = 9.
+      Cálculo: +5 -9 -> -4 ==> Valor que será somado à quantidade do Produto X.
+     */
     @Override
     public void updateOrder(Order order) throws NotFoundItemInPortalException, MqttException, UnauthorizedUserException, BadRequestException {
         authenticateClient(order.getCID());
