@@ -25,14 +25,23 @@
     
 ## Compilação
 
-`servers_start.sh`, ` admin_client_start.sh `... compõe nossos scripts. São autoexplicativos, inicializam ou o server
-ou os servers, ou um client etc. Exceto o servers_start, aceitam porta como entrada.
+INICIE MOSQUITTO
+
+`servers_start.sh`, ` admin_client_start.sh `... compõe nossos scripts. São autoexplicativos, inicializam ou uma bateria de servers ou é possível iniciar apenas clients/servers, ou um client etc. Exceto o servers_start, aceitam porta como entrada.
 
 Olhe dentro de cada script para entender como executar quaisquer classe, mas em geral seria (no mínimo)
 
 `./gradlew extractIncludeProto extractProto generateProto compileJava processResources classes run -PmainClass=ufu.davigabriel.Caminho.Pra.Classe --args="Porta?"`
 
-Se não passar a porta, as nossas base serão usadas. Recomenda-se fortemante mantê-las.
+Se não passar a porta, as nossas base serão usadas. Recomenda-se fortemante mantê-las. É recomendado usar o intellij também para rodar.
+
+### Erros ou Comportamentos Esperados
+
+É possível que falhe encoding, não é problema.
+
+É possível que nos testes tenham um runtime exception que não fere os resultados, nem os servidores.
+
+Sem ser a main, é possível rodar clients com os shellscripts com argumentos, assim autorizando uso em outras portas. Mas novamente, recomendamos não utilizar.
 
 # Para executar os testes automatizados:
 
