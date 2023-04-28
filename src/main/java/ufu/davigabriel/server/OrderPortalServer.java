@@ -20,8 +20,17 @@ public class OrderPortalServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = BASE_PORTAL_SERVER_PORT;
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
+        try {
+            if (args.length > 0) { // aceita dinamicamente portas somado ao valor base
+                port = Integer.parseInt(args[0]);
+                if (port < 1024 || port > 65536) throw new NumberFormatException("Porta com numero invalido");
+            }
+        } catch (NumberFormatException numberFormatException) {
+            System.out.println("Se quiser conectar em alguma porta, por favor" +
+                    " insira o argumento como uma string representando um int" +
+                    " valido entre 1024 e 65535");
+        } finally {
+            System.out.println("Conectara em: " + port);
         }
         final OrderPortalServer server = new OrderPortalServer();
         server.start(port);

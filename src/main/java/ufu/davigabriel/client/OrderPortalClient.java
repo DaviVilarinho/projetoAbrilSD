@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 public class OrderPortalClient {
     private static final String HOST = "localhost";
-    private static final int SERVER_PORT = OrderPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
-    public static final String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
+    private static int SERVER_PORT = OrderPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
+    public static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
     private static final Scanner scanner = new Scanner(System.in);
     private final OrderPortalGrpc.OrderPortalBlockingStub blockingStub;
 
@@ -29,6 +29,22 @@ public class OrderPortalClient {
         System.out.println("----------------------------------");
         System.out.println("Bem vindo ao Portal de Pedidos");
         System.out.println("----------------------------------");
+
+        try {
+            if (args.length > 0) {
+                SERVER_PORT = Integer.parseInt(args[0]);
+                if (SERVER_PORT < 1024 || SERVER_PORT > 65536) throw new NumberFormatException("Porta com numero invalido");
+                TARGET_SERVER = String.format("%s:%d", HOST,
+                        SERVER_PORT);
+            }
+        } catch (NumberFormatException numberFormatException) {
+            System.out.println("Se quiser conectar em alguma porta, por favor" +
+                    " insira o argumento como uma string representando um int" +
+                    " valido entre 1024 e 65535");
+        } finally {
+            System.out.println("Conectara em: " + TARGET_SERVER);
+        }
+
 
         ManagedChannel channel = Grpc.newChannelBuilder(TARGET_SERVER, InsecureChannelCredentials.create()).build();
 
