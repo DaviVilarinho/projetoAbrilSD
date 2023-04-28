@@ -58,6 +58,7 @@ public class AdminPortalServerTest {
         clientNativeThatShouldBeUpdated.setZipCode("326432");
         reply = blockingStub.updateClient(clientNativeThatShouldBeUpdated.toClient());
         Assert.assertEquals(reply.getError(), ReplyNative.SUCESSO.getError());
+        Thread.sleep(TOLERANCE_MS);
         client = blockingStub.retrieveClient(ID.newBuilder().setID(clientNativeThatShouldBeUpdated.getCID()).build());
         Assert.assertEquals(clientNativeThatShouldBeUpdated.toClient(), client);
 
