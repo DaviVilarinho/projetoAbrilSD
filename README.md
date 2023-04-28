@@ -27,7 +27,7 @@
 
 INICIE MOSQUITTO
 
-`servers_start.sh`, ` admin_client_start.sh `... compõe nossos scripts. São autoexplicativos, inicializam ou uma bateria de servers ou é possível iniciar apenas clients/servers, ou um client etc. Exceto o servers_start, aceitam porta como entrada.
+`servers_start.sh`, ` admin_client_start.sh `... compõe nossos scripts. São autoexplicativos, inicializam ou uma bateria de servers ou é possível iniciar apenas clients/servers, ou um client etc. Exceto o servers_start, aceitam porta como entrada. OBS: o OrderPortalServer usa as portas padroes do AdminPortalServer, não foi possível mudar isso em tempo h
 
 Olhe dentro de cada script para entender como executar quaisquer classe, mas em geral seria (no mínimo)
 
