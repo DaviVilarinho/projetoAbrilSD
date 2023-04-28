@@ -48,6 +48,7 @@ public class AdminPortalServerTest {
         Assert.assertNotEquals(clientThatShouldNotBeCreated, client);
         clientThatShouldBeCreated = clientThatShouldNotBeCreated;
         reply = blockingStub.createClient(clientThatShouldBeCreated);
+        Thread.sleep(TOLERANCE_MS);
         Assert.assertNotEquals(clientThatShouldBeCreated, client);
         client = blockingStub.retrieveClient(ID.newBuilder().setID(clientThatShouldBeCreated.getCID()).build());
         Assert.assertEquals(clientThatShouldBeCreated, client);
