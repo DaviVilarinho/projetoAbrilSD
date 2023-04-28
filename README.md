@@ -16,6 +16,10 @@ Para executar o sistema:
     Isto inicializará o cliente OrderPortalClient. É através desta janela
     que o usuário interagirá com o Portal de Pedidos.
 
+    5° - Ao final da execução do comando './servers_start.sh', é imprescindível
+    executar o comando './matar_portas_servers.sh', para garantir o bom
+    funcionamento do sistema entre execuções.
+
 Para executar os testes automatizados:
 
     1° - Para quaisquer testes, é necessário executar o comando 'mosquitto'.
