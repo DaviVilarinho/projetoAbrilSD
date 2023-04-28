@@ -18,6 +18,7 @@ import ufu.davigabriel.server.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 
 /*
@@ -122,12 +123,21 @@ public class MosquittoOrderUpdaterMiddleware extends MosquittoUpdaterMiddleware 
         OrderNative newOrderNative = validateOrder(order);
         newOrderNative.getProducts().removeIf(product -> product.getQuantity() == 0);
         publishOrderChange(order, MosquittoTopics.ORDER_UPDATE_TOPIC);
+
+        HashMap<String, Integer> auxiliarHashMapForProductQuantityRestoration = new HashMap<String, Integer>();
+
         oldOrderNative.getProducts().forEach(oldItem -> {
-            if (newOrderNative.getProducts().stream().filter(newItem -> newItem.getPID().equals(oldItem.getPID())).toList().size() == 0)
-                increaseGlobalProductQuantity(connectionBlockingStub, oldItem.getPID(), oldItem.getQuantity());
+            auxiliarHashMapForProductQuantityRestoration.put(oldItem.getPID(),
+                    auxiliarHashMapForProductQuantityRestoration.getOrDefault(oldItem.getPID(), 0) + oldItem.getQuantity());
         });
-        newOrderNative.getProducts().forEach(item -> {
-            increaseGlobalProductQuantity(connectionBlockingStub, item.getPID(), getProductQuantityIncrease(item, oldOrderNative.getProducts()));
+
+        newOrderNative.getProducts().forEach(newItem -> {
+            auxiliarHashMapForProductQuantityRestoration.put(newItem.getPID(),
+                    auxiliarHashMapForProductQuantityRestoration.getOrDefault(newItem.getPID(), 0) - newItem.getQuantity());
+        });
+
+        auxiliarHashMapForProductQuantityRestoration.forEach((id, value) -> {
+            increaseGlobalProductQuantity(connectionBlockingStub, id, value);
         });
     }
 
@@ -140,14 +150,6 @@ public class MosquittoOrderUpdaterMiddleware extends MosquittoUpdaterMiddleware 
         orderNative.getProducts().forEach(item -> {
             increaseGlobalProductQuantity(connectionBlockingStub, item.getPID(), item.getQuantity());
         });
-    }
-
-    private int getProductQuantityIncrease(OrderItemNative orderItem, ArrayList<OrderItemNative> oldOrderItems){
-        for (OrderItemNative oldOrderItem : oldOrderItems) {
-            if (orderItem.getPID().equals(oldOrderItem.getPID()))
-                return oldOrderItem.getQuantity() - orderItem.getQuantity();
-        }
-        return -orderItem.getQuantity();
     }
 
     private void increaseGlobalProductQuantity(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, String productId, int variation){

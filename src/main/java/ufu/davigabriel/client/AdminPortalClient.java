@@ -4,8 +4,6 @@ import io.grpc.Channel;
 import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
-import lombok.Getter;
-import lombok.Setter;
 import ufu.davigabriel.Main;
 import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.ProductNative;
@@ -17,10 +15,10 @@ import java.util.concurrent.TimeUnit;
 
 public class AdminPortalClient {
     public static String HOST = "localhost";
-    public static int SERVER_PORT = AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
+    public static int SERVER_PORT =
+            AdminPortalServer.BASE_PORTAL_SERVER_PORT + new Random().nextInt(Main.PORTAL_SERVERS);
     public static String TARGET_SERVER = String.format("%s:%d", HOST, SERVER_PORT);
     private final AdminPortalGrpc.AdminPortalBlockingStub blockingStub;
-
     private static final Scanner scanner = new Scanner(System.in);
 
     public AdminPortalClient(Channel channel) {
@@ -115,7 +113,7 @@ public class AdminPortalClient {
                             ReplyNative response = createProduct(adminPortalClient.blockingStub, ProductNative.builder().PID(productId).name(name).description(description).price(price).quantity(quantity).build());
                             if (response.getError() != 0)
                                 System.out.println("ERRO: " + response.getDescription());
-                            else System.out.println("CLIENTE INSERIDO");
+                            else System.out.println("PRODUTO INSERIDO");
                         } catch (NullPointerException |
                                  NumberFormatException formatException) {
                             System.out.println("Este produto e invalido e nao sera inserido");

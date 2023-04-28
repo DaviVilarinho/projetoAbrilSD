@@ -5,6 +5,7 @@ import io.grpc.Grpc;
 import io.grpc.InsecureChannelCredentials;
 import io.grpc.ManagedChannel;
 import ufu.davigabriel.Main;
+import ufu.davigabriel.models.ClientNative;
 import ufu.davigabriel.models.OrderItemNative;
 import ufu.davigabriel.models.OrderNative;
 import ufu.davigabriel.models.ReplyNative;
@@ -45,7 +46,7 @@ public class OrderPortalClient {
                 System.out.println("Tentativas esgotadas!");
                 orderPortalOption = OrderPortalOption.SAIR;
             }
-
+            System.out.println("Login efetuado com sucesso!");
             while (!OrderPortalOption.SAIR.equals(orderPortalOption)) {
                 System.out.println("^^--__");
                 System.out.println("Opcoes:");
@@ -70,19 +71,15 @@ public class OrderPortalClient {
                         orderId = "".equals(inputOrderId.strip().trim()) ?
                                 orderId : inputOrderId;
                         ArrayList<OrderItemNative> addedProducts = new ArrayList<>();
-                        String option = "z";
-                        int times = 0;
-                        while (!"n".equals(option)) {
-                            if (times > 0) {
-                                System.out.print("Escreva se deseja adicionar um produto ao pedido (y/n): ");
-                                option = scanner.nextLine().strip().toLowerCase();
-                            } else {
-                                option = "y";
-                            }
+                        String option;
+                        addedProducts.add(orderPortalClient.addProductToOrder()); //1° produto
+                        do {
+                            System.out.print("Escreva se deseja adicionar novo produto ao pedido (y/n): ");
+                            option = scanner.nextLine().strip().trim().toLowerCase();
                             if ("y".equals(option))
                                 addedProducts.add(orderPortalClient.addProductToOrder());
-                            times++;
-                        }
+                        } while (!"n".equals(option));
+
                         if (addedProducts.size() == 0) {
                             System.out.println("Sem produtos, sem update...");
                             break;
@@ -123,7 +120,7 @@ public class OrderPortalClient {
                             break;
                         }
 
-                        ReplyNative response = createOrder(orderPortalClient.blockingStub, OrderNative.builder().OID(oidAMudar).CID(loggedClientId).products(addedProducts).build());
+                        ReplyNative response = updateOrder(orderPortalClient.blockingStub, OrderNative.builder().OID(oidAMudar).CID(loggedClientId).products(addedProducts).build());
                         if (response.getError() != 0)
                             System.out.println("ERRO: " + response.getDescription());
                         else System.out.println("PEDIDO ATUALIZADO");
@@ -140,7 +137,6 @@ public class OrderPortalClient {
                         System.out.println("PEDIDOS ASSOCIADOS AO CLIENTE:");
                         clientOrders.forEach(orderNative -> {
                             Optional.ofNullable(orderNative).ifPresentOrElse(System.out::println, () -> System.out.println("Nada a mostrar..."));
-                            ;
                         });
                         System.out.println("------todos-pedidos-enumerados" +
                                 "------");
@@ -179,11 +175,14 @@ public class OrderPortalClient {
         return ReplyNative.fromReply(blockingStub.deleteOrder(ID.newBuilder().setID(orderId).build()));
     }
 
-
     static private ArrayList<OrderNative> retrieveClientOrders(OrderPortalGrpc.OrderPortalBlockingStub blockingStub, String clientId) {
         ArrayList<OrderNative> clientOrders = new ArrayList<>();
         blockingStub.retrieveClientOrders(ID.newBuilder().setID(clientId).build()).forEachRemaining(clientOrder -> clientOrders.add(OrderNative.fromOrder(clientOrder)));
         return clientOrders;
+    }
+
+    static private ReplyNative updateOrder(OrderPortalGrpc.OrderPortalBlockingStub blockingStub, OrderNative orderNative) {
+        return ReplyNative.fromReply(blockingStub.updateOrder(orderNative.toOrder()));
     }
 
     private String login(AdminPortalGrpc.AdminPortalBlockingStub blockingStub, Scanner scanner) {
