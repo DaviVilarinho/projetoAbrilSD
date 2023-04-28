@@ -23,7 +23,7 @@ public class AdminPortalServer {
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = BASE_PORTAL_SERVER_PORT;
         if (args.length > 0) { // aceita dinamicamente portas somado ao valor base
-            port = BASE_PORTAL_SERVER_PORT + Integer.parseInt(args[0]);
+            port = Integer.parseInt(args[0]);
         }
         AdminPortalServer server = new AdminPortalServer();
         server.start(port);

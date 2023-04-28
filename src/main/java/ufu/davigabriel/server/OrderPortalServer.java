@@ -21,7 +21,7 @@ public class OrderPortalServer {
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = BASE_PORTAL_SERVER_PORT;
         if (args.length > 0) {
-            port = BASE_PORTAL_SERVER_PORT + Integer.parseInt(args[0]);
+            port = Integer.parseInt(args[0]);
         }
         final OrderPortalServer server = new OrderPortalServer();
         server.start(port);

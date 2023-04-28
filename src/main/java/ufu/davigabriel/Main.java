@@ -1,5 +1,8 @@
 package ufu.davigabriel;
 
+import ufu.davigabriel.server.AdminPortalServer;
+import ufu.davigabriel.server.OrderPortalServer;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +17,14 @@ public class Main {
                         "./gradlew",
                         "run",
                         "-PmainClass=ufu.davigabriel.server.AdminPortalServer",
-                        "--args=\"" + value + "\"")
+                        "--args=\"" + (AdminPortalServer.BASE_PORTAL_SERVER_PORT + value) + "\"")
                 ).toList();
         List<ProcessBuilder> orderPortalServers = IntStream.range(0, PORTAL_SERVERS)
                 .mapToObj(value -> new ProcessBuilder(
                         "./gradlew",
                         "run",
                         "-PmainClass=ufu.davigabriel.server.OrderPortalServer",
-                        "--args=\"" + value + "\"")
+                        "--args=\"" + (OrderPortalServer.BASE_PORTAL_SERVER_PORT + value) + "\"")
                 ).toList();
         List<List<ProcessBuilder>> portalServers = List.of(orderPortalServers, adminPortalServers);
         portalServers.forEach(portalServer -> portalServer.forEach(ProcessBuilder::inheritIO));
